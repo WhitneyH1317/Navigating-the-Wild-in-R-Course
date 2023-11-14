@@ -64,10 +64,10 @@ lessons are stored in the code-directory.
 
 |  file(s)/directories                   |   description                                                                                      |
 |:----------------------------------------|:----------------------------------------------------------------------------------------------------|
-| **[lesson01.Rmd](https://github.com/EUROMAMMALS/Navigating-the-Wild-in-R-Course/blob/main/code/lesson01.Rmd)** |      description         |
-| **[lesson02.Rmd](https://github.com/EUROMAMMALS/Navigating-the-Wild-in-R-Course/blob/main/code/lesson02.Rmd)** |      description         | 
-| **[lesson03.Rmd](https://github.com/EUROMAMMALS/Navigating-the-Wild-in-R-Course/blob/main/code/lesson03.Rmd)** |      description         |
-| **[lesson04.Rmd](https://github.com/EUROMAMMALS/Navigating-the-Wild-in-R-Course/blob/main/code/lesson04.Rmd)** |      description         | 
+| **[lesson01.Rmd](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson01.Rmd)** |      description         |
+| **[lesson02.Rmd](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson02.Rmd)** |      description         | 
+| **[lesson03.Rmd](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson03.Rmd)** |      description         |
+| **[lesson04.Rmd](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson04.Rmd)** |      description         | 
 
 ## data-directory  
 
@@ -75,9 +75,9 @@ Raw and processed datasets are stored in the data-directory. Datasets are descri
 
 |  file(s)/directories                   |   description                                                                                      |
 |:----------------------------------------|:----------------------------------------------------------------------------------------------------|
-| **[data/lesson01](https://github.com/Navigating-the-Wild-in-R-Course/blob/main/data/lesson01)**       | data-type; description            |  
-| **[data/lesson02](https://github.com/Navigating-the-Wild-in-R-Course/blob/main/data/lesson02)**       | data-type; description            |  
-| **[data/lesson03](https://github.com/Navigating-the-Wild-in-R-Course/blob/main/data/lesson03)**       | data-type; description            |  
+| **[data/lesson01](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson01)**       | data-type; description            |  
+| **[data/lesson02](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson02)**       | data-type; description            |  
+| **[data/lesson03](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson03)**       | data-type; description            |  
 
 
 # References 
