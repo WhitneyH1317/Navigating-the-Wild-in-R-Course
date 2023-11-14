@@ -1,0 +1,35 @@
+name: Navigating the wild in R Course
+navbar:
+  title: "Navigating the wild in R Course"
+  left:
+  - text: Lessons
+    menu:
+    - text: lesson 1 short title 
+      href: ./code/lesson01.html
+    - text: lesson 2 short title 
+      href: ./code/lesson02.html
+    - text: lesson 3 short title 
+      href: ./code/lesson03.html
+    - text: lesson 4 short title 
+      href: ./code/lesson04.html
+    - text: lesson 5 short title 
+      href: ./code/lesson05.html
+    - text: lesson 6 short title 
+      href: ./code/lesson06.html
+    - text: lesson 7 short title 
+      href: ./code/lesson07.html
+    - text: lesson 8 short title 
+      href: ./code/lesson08.html
+output:
+  html_document:
+    theme: spacelab
+    highlight: haddock
+    css: html-md-01.css
+    fig_caption: no
+    number_sections: yes
+    toc: yes
+    toc_float: no
+    collapsed: no
+    lib_dir: site_libs
+    self_contained: no
+output_dir: ~

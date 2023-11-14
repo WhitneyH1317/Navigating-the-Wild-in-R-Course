@@ -1,0 +1,407 @@
+---
+title: "0. data preparation"
+author: "Johannes De Groeve"
+date: "1/6/2023"
+output: html_document
+---
+
+#### PACKAGES
+
+```{r message=FALSE, error=FALSE, warning=FALSE}
+library(rpostgis)
+library(plyr)
+library(RPostgreSQL)
+library(adehabitatHR)
+library(raster)
+library(sf)
+library(sp)
+library(RgoogleMaps) 
+library(mapview)
+```
+
+#### FUNCTIONS
+
+```{r message=FALSE, error=FALSE, warning=FALSE, results=FALSE}
+fncs <- list.files(pattern='0.*',path='../code/fncs',full.names = TRUE)
+lapply(fncs, source)
+```
+
+
+#### 1. MOVEMENT DATA
+
+#### 1.1. GPS DATA
+
+```{r message=FALSE, error=FALSE, warning=FALSE}
+
+# load movement data from database
+
+# queries to load the data from the roe and red deer databases 
+
+# drv <- dbDriver("PostgreSQL")
+# con_roe <- dbConnect(drv, dbname="eurodeer_db", host="",port="", user="", password="")
+# con_red <- dbConnect(drv, dbname="eureddeer_db", host="",port="", user="", password="")
+# 
+# query_roe <- "SELECT aniyr, a.study_areas_id, a.sex, a.animals_id, acquisition_time::character varying, geom, 
+# forest_density, corine_land_cover_2012_vector_code, timex, datex, yearx, 
+# mid_or_noon, doyx, min, max, diff_doy, prop,count,cnt_night,prop_night,cnt_day, prop_day 
+# FROM ws_fem.joh_clctcd_roe a JOIN ws_fem.joh_clctcd_roe_aniyr USING (aniyr);"
+# query_red <- "SELECT aniyr, a.study_areas_id, a.sex, a.animals_id, acquisition_time::character varying, geom, 
+# forest_density, corine_land_cover_2012_vector_code, timex, datex, yearx, 
+# mid_or_noon, doyx, min, max, diff_doy, prop,count,cnt_night,prop_night,cnt_day, prop_day 
+# FROM ws_fem_reddeer.joh_clctcd_red a JOIN ws_fem_reddeer.joh_clctcd_red_aniyr USING (aniyr);"
+# 
+# roe <- pgGetGeom(con_roe, query = query_roe)
+# red <- pgGetGeom(con_red, query = query_red)
+# saveRDS(roe, './data/roe_gps')
+# saveRDS(red, './data/red_gps')
+#
+# lapply(dbListConnections(drv = dbDriver("PostgreSQL")), function(x) {dbDisconnect(conn = con_roe)})
+# lapply(dbListConnections(drv = dbDriver("PostgreSQL")), function(x) {dbDisconnect(conn = con_red)})
+
+# load GPS data
+
+## 4326
+roe <- readRDS('../data/raw/gps/roe_rds')
+red <- readRDS('../data/raw/gps/red_rds')
+
+## 3035
+proj4 <- '+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs' 
+roe3035 <- spTransform(roe,proj4) # transform to the reference system SRID 3035
+red3035 <- spTransform(red,proj4) # transform to the reference system SRID 3035
+
+## split by time of day (day vs night)
+roe_night <- roe3035[which(roe3035@data$mid_or_noon == "midnight"),]
+roe_day <- roe3035[which(roe3035@data$mid_or_noon == "noon"),]
+red_night <- red3035[which(red3035@data$mid_or_noon == "midnight"),]
+red_day <- red3035[which(red3035@data$mid_or_noon == "noon"),]
+
+# split per study area 
+roe_night_l <- split(roe_night, f=roe_night$study_areas_id)
+roe_day_l <- split(roe_day, f=roe_day$study_areas_id)
+red_night_l <- split(red_night, f=red_night$study_areas_id)
+red_day_l <- split(red_day, f=red_day$study_areas_id)
+```
+
+
+#### 1.2. KDE ####
+
+```{r message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width = 13, fig.height=8}
+
+## compute KDE (day/night) per individual ##
+roe_night_kde <- lapply(roe_night_l, function(x) kde(spatial_dataset=x, grid=FALSE))
+roe_day_kde <- lapply(roe_day_l, function(x) kde(spatial_dataset=x, grid=FALSE))
+red_night_kde <- lapply(red_night_l, function(x) kde(spatial_dataset=x, grid=FALSE))
+red_day_kde <- lapply(red_day_l, function(x) kde(spatial_dataset=x, grid=FALSE))
+
+## merge KDE per population ##
+
+# names of the populations
+pops_roe <- names(roe_night_l)
+pops_red <- names(red_night_l)
+
+# aggregate individual KDEs per population
+roe_pop <- list(data.frame())
+red_pop <- list(data.frame())
+for(i in 1:length(roe_night_kde)){ roe_pop[[i]] <- aggregate(as(rbind(st_as_sf(roe_night_kde[[i]][[1]]),st_as_sf(roe_day_kde[[i]][[1]])),'Spatial'), dissolve=TRUE)}
+for(i in 1:length(red_night_kde)){ red_pop[[i]] <- aggregate(as(rbind(st_as_sf(red_night_kde[[i]][[1]]),st_as_sf(red_day_kde[[i]][[1]])),'Spatial'), dissolve=TRUE)}
+
+# projection clc and tcd
+proj4_clc <- '+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs' 
+proj4_tcd <- '+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs' 
+
+# reproject 
+
+# 4326
+roe_pop4326 <- lapply(roe_pop, function(x) spTransform(raster::buffer(x,15000),
+                                                       '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs')) 
+red_pop4326 <- lapply(red_pop, function(x) spTransform(raster::buffer(x,15000),
+                                                       '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs'))
+
+# 3035
+roe_pop3035 <- roe_pop
+red_pop3035 <- red_pop
+
+## remove HRs which are very large (> 10000) ##
+roe_night_kde_ind_a <- lapply(roe_night_kde, function(x) x[[2]])
+roe_day_kde_ind_a <- lapply(roe_day_kde, function(x) x[[2]])
+red_night_kde_ind_a <- lapply(red_night_kde, function(x) x[[2]])
+red_day_kde_ind_a <- lapply(red_day_kde, function(x) x[[2]])
+
+# remove animals that have a range larger than 10000 (likely migration)
+roe_night_kde_ind <- lapply(roe_night_kde, function(x) subset(x[[2]], area < 10000))
+roe_day_kde_ind <- lapply(roe_day_kde, function(x) subset(x[[2]], area < 10000))
+red_night_kde_ind <- lapply(red_night_kde, function(x) subset(x[[2]], area < 10000))
+red_day_kde_ind <- lapply(red_day_kde, function(x) subset(x[[2]], area < 10000))
+
+# number of animals that are removed 
+roe_night_kde_nrow_rm <- lapply(roe_night_kde, function(x) nrow(subset(x[[2]], area > 10000))) 
+roe_day_kde_nrow_rm <- lapply(roe_day_kde, function(x) nrow(subset(x[[2]], area > 10000))) 
+red_night_kde_nrow_rm <- lapply(red_night_kde, function(x) nrow(subset(x[[2]], area > 10000))) 
+red_day_kde_nrow_rm <- lapply(red_day_kde, function(x) nrow(subset(x[[2]], area > 10000))) 
+
+# number of animals
+roe_night_kde_nrow <- lapply(roe_night_kde_ind_a, function(x) nrow(x)) 
+roe_day_kde_nrow <- lapply(roe_day_kde_ind_a, function(x) nrow(x)) 
+red_night_kde_nrow <- lapply(red_night_kde_ind_a, function(x) nrow(x)) 
+red_day_kde_nrow <- lapply(red_day_kde_ind_a, function(x) nrow(x)) 
+
+# data frame with number of animals 
+roe_night_animals <- list(data.frame())
+roe_day_animals <- list(data.frame())
+red_night_animals <- list(data.frame())
+red_day_animals <- list(data.frame())
+
+for(i in 1:5){
+  roe_night_animals[[i]] <- data.frame(total=roe_night_kde_nrow[[i]], 
+                                       remaining= roe_night_kde_nrow_rm[[i]],
+                                       diff=roe_night_kde_nrow[[i]] - roe_night_kde_nrow_rm[[i]], 
+                                       pop=names(roe_night_kde_ind_a)[i])
+  
+  roe_day_animals[[i]] <- data.frame(total=roe_day_kde_nrow[[i]], 
+                                     remaining=roe_day_kde_nrow_rm[[i]],
+                                     diff=roe_day_kde_nrow[[i]] - roe_day_kde_nrow_rm[[i]], 
+                                     pop=names(roe_day_kde_ind_a)[i])
+  
+  red_night_animals[[i]] <- data.frame(total=red_night_kde_nrow[[i]], 
+                                       remaining=red_night_kde_nrow_rm[[i]],
+                                       diff=red_night_kde_nrow[[i]] - red_night_kde_nrow_rm[[i]], 
+                                       pop=names(red_night_kde_ind_a)[i])
+  
+  red_day_animals[[i]] <- data.frame(total=red_day_kde_nrow[[i]], 
+                                     remaining=red_day_kde_nrow_rm[[i]],
+                                     diff=red_day_kde_nrow[[i]] - red_day_kde_nrow_rm[[i]], 
+                                     pop=names(red_day_kde_ind_a)[i])
+}
+
+roe_sum_night <- do.call(rbind.data.frame, roe_night_animals)
+roe_sum_day <- do.call(rbind.data.frame, roe_day_animals)
+red_sum_night <- do.call(rbind.data.frame, red_night_animals)
+red_sum_day <- do.call(rbind.data.frame, red_day_animals)
+
+roe_sum_night$species <- 'roe'
+roe_sum_day$species <- 'roe'
+red_sum_night$species <- 'red'
+red_sum_day$species <- 'red'
+
+roe_sum_night$species <- 'night'
+roe_sum_day$species <- 'day'
+red_sum_night$species <- 'night'
+red_sum_day$species <- 'day'
+
+summary_tables  <- rbind.data.frame(roe_sum_night,roe_sum_day,red_sum_night,red_sum_day)
+sum(summary_tables$diff)
+# write.csv(summary_tables, "summary_table_roe_red.csv")
+
+# Explore area per population
+par(mfrow=c(2,5))
+for(i in 1:5){
+  plot(roe_night_kde_ind[[i]]@data$area, col='black',pch=19)
+  points(roe_day_kde_ind[[i]]@data$area, col='red',pch=19)
+}
+for(i in 1:5){
+  plot(red_night_kde_ind[[i]]@data$area, col='black',pch=19)
+  points(red_day_kde_ind[[i]]@data$area, col='red',pch=19)    
+}
+```
+
+
+#### 2. ENVIRONMENTAL DATA 
+
+```{r message=FALSE, error=FALSE, warning=FALSE}
+
+### Load environmental data ###
+
+# TCD and CLC are loaded. The data are extracts per population from TCD 2012 and rasterized version of CLC 2012 (vector)
+roe_rast_clc_list <- list.files(pattern="roe_raster_clc_population_[0-9]*.\\.tif",
+                                path = '../data/raw/rasters',full.names = T)
+roe_rast_tcd_list <- list.files(pattern="roe_raster_tcd_population_[0-9]*.\\.tif",
+                                path = '../data/raw/rasters',full.names = T)
+red_rast_clc_list <- list.files(pattern="red_raster_clc_population_[0-9]*.\\.tif",
+                                path = '../data/raw/rasters',full.names = T)
+red_rast_tcd_list <- list.files(pattern="red_raster_tcd_population_[0-9]*.\\.tif",
+                                path = '../data/raw/rasters',full.names = T)
+
+roe_clc <- lapply(roe_rast_clc_list, function(x) raster(x))
+names(roe_clc) <- gsub(".tif","",gsub("../data/raw/rasters/roe_raster_clc_population_","",roe_rast_clc_list))
+roe_clc <- roe_clc[pops_roe]
+
+roe_tcd <- lapply(roe_rast_tcd_list, function(x) raster(x))
+names(roe_tcd) <- gsub(".tif","",gsub("../data/raw/rasters/roe_raster_tcd_population_","",roe_rast_tcd_list))
+roe_tcd <- roe_tcd[pops_roe]
+
+red_clc <- lapply(red_rast_clc_list, function(x) raster(x))
+names(red_clc) <- gsub(".tif","",gsub("../data/raw/rasters/red_raster_clc_population_","",red_rast_clc_list))
+red_clc <- red_clc[pops_red]
+
+red_tcd <- lapply(red_rast_tcd_list, function(x) raster(x))
+names(red_tcd) <- gsub(".tif","",gsub("../data/raw/rasters/red_raster_tcd_population_","",red_rast_tcd_list))
+red_tcd <- red_tcd[pops_red]
+```
+
+#### 2.1. MISMATCH EXPLORATION ####
+```{r message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width = 13, fig.height=8}
+
+# reclassification to explore mismatch between tcd and clc 
+roe_clc_r <- lapply(roe_clc, function(x) reclass_clc(rast=x, value_forest=1, value_open = 3)) #reclass val open 3
+roe_tcd_r <- lapply(roe_tcd, function(x) reclass_tcd(rast=x, value_forest=1, value_open = 0))
+red_clc_r <- lapply(red_clc, function(x) reclass_clc(rast=x, value_forest=1, value_open = 3)) #reclass val open 3
+red_tcd_r <- lapply(red_tcd, function(x) reclass_tcd(rast=x, value_forest=1, value_open = 0))
+
+# mismatch between tcd and clc
+roe_diff <- list(data.frame())
+for(i in 1:length(roe_clc_r)){roe_diff[[i]] <- roe_clc_r[[i]] - roe_tcd_r[[i]]}
+red_diff <- list(data.frame())
+for(i in 1:length(red_clc_r)){red_diff[[i]] <- red_clc_r[[i]] - red_tcd_r[[i]]}
+
+col <- data.frame(classes = c(3,1,0,2), 
+                  names= c('clc0tcd0','clc1tcd0','clc1tcd1','clc0tcd1'), 
+                  cols = c('darkolivegreen1','lightblue','forestgreen','blue'),
+                  stringsAsFactors=FALSE)
+col_tcd <- data.frame(classes = c(0,1), 
+                      names= c('forest','open'), 
+                      cols = c('darkolivegreen1','forestgreen'),
+                      stringsAsFactors=FALSE)
+col_clc <- data.frame(classes = c(1,3), 
+                      names= c('forest','open'), 
+                      cols = c('forestgreen','darkolivegreen1'),
+                      stringsAsFactors=FALSE)
+
+# overview map with mismatches per population 
+par(mfrow=c(1,3), mar=c(1,1,1,1))
+image(roe_tcd_r[[i]], 
+      col=plyr::join(data.frame(classes=sort(unique(as.vector(as.matrix(roe_tcd_r[[i]])))),stringsAsFactors=F),
+                     col_tcd,type="left", by='classes')$cols,
+      ylab=NA,
+      xlab=NA)
+box()
+
+image(roe_clc_r[[i]], 
+      col=plyr::join(data.frame(classes=sort(unique(as.vector(as.matrix(roe_clc_r[[i]])))),stringsAsFactors=F), 
+                     col_clc,type="left", by='classes')$cols,
+      ylab=NA,
+      xlab=NA)
+box()
+
+image(roe_diff[[i]], 
+      col=plyr::join(data.frame(classes=sort(unique(as.vector(as.matrix(roe_diff[[i]])))),stringsAsFactors=F), 
+                     col,type="left", by='classes')$cols,
+      ylab=NA,
+      xlab=NA)
+box()
+```
+
+#### 2.2. RECLASSIFICATION
+```{r message=FALSE, error=FALSE, warning=FALSE}
+# reclassification of tcd and clc 
+roe_clc_r <- lapply(roe_clc, function(x) reclass_clc(rast=x, value_forest=1, value_open = 0))
+roe_tcd_r <- lapply(roe_tcd, function(x) reclass_tcd(rast=x, value_forest=1, value_open = 0))
+red_clc_r <- lapply(red_clc, function(x) reclass_clc(rast=x, value_forest=1, value_open = 0))
+red_tcd_r <- lapply(red_tcd, function(x) reclass_tcd(rast=x, value_forest=1, value_open = 0))
+```
+
+#### 3. ENV + MOVE DATA
+
+#### 3.1. INTERSECT - KDE
+
+```{r message=FALSE, error=FALSE, warning=FALSE, results=FALSE}
+# Intersection of KDE and reclassified tcd and clc raster layers and calculations of proportional mismatch
+roe_night_kde_calc <- intersect_rast_kde(roe_clc_r, roe_tcd_r, roe_night_kde_ind)
+roe_day_kde_calc <- intersect_rast_kde(roe_clc_r, roe_tcd_r, roe_day_kde_ind)
+red_night_kde_calc <- intersect_rast_kde(red_clc_r, red_tcd_r, red_night_kde_ind)
+red_day_kde_calc <- intersect_rast_kde(red_clc_r, red_tcd_r, red_day_kde_ind)
+
+roe_night_kde_final <- do.call(rbind.data.frame, roe_night_kde_calc[[4]])
+roe_day_kde_final <- do.call(rbind.data.frame, roe_day_kde_calc[[4]])
+red_night_kde_final <- do.call(rbind.data.frame, red_night_kde_calc[[4]])
+red_day_kde_final <- do.call(rbind.data.frame, red_day_kde_calc[[4]])
+
+roe_night_kde_final$time <- 'night'
+roe_day_kde_final$time <- 'day'
+red_night_kde_final$time <- 'night'
+red_day_kde_final$time <- 'day'
+
+roe_night_kde_final$species <- 'roe'
+roe_day_kde_final$species <- 'roe'
+red_night_kde_final$species <- 'red'
+red_day_kde_final$species <- 'red'
+
+data_final <- rbind.data.frame(roe_night_kde_final, roe_day_kde_final, red_night_kde_final, red_day_kde_final)
+data_final$total <- rowSums(as(data_final,'Spatial')@data[,c('forest_tcd','open_tcd')])
+
+data_prop <- as(data_final[,c('forest_tcd','open_tcd','forest_clc', 'open_clc', 
+                              'clc0tcd0', 'clc1tcd1','clc0tcd1','clc1tcd0')],"Spatial")@data /data_final$total
+colnames(data_prop) <- paste0(colnames(data_prop), '_prop')
+data_final <- cbind.data.frame(data_final, data_prop)
+
+data_final$geometry <- NULL  
+data_final$study_areas_id <- data_final$population
+data_final$aniyr <- data_final$id
+data_final$animals_id <- gsub('_[0-9]*.','',data_final$id)
+
+data_final <- data_final[,c('species','population','study_areas_id',
+                            'aniyr','animals_id','area','time','total',
+                            'clc0tcd0','clc1tcd1','clc0tcd1', 'clc1tcd0',
+                            'open_tcd','forest_tcd', 
+                            'open_clc', 'forest_clc',
+                            'clc0tcd0_prop', 'clc1tcd1_prop', 
+                            'clc0tcd1_prop','clc1tcd0_prop',
+                            'open_tcd_prop','forest_tcd_prop',
+                            'open_clc_prop','forest_clc_prop')]
+
+### write dataset ### 
+
+# write.csv(data_final,  '../data/1_mismatch_and_modelling/kde_data.csv')
+```
+
+
+#### 3.2. INTERSECT - GPS ####
+
+```{r message=FALSE, error=FALSE, warning=FALSE, results=FALSE}
+# Intersection of GPS and reclassified tcd and clc raster layers and calculations of proportional mismatch
+roedeer_data <- intersect_rast_gps(roe_clc_r, roe_tcd_r, roe3035)
+reddeer_data <- intersect_rast_gps(red_clc_r, red_tcd_r, red3035)
+
+data_final_roe_points<-unique(roedeer_data[,c('animals_id','aniyr','study_areas_id',
+                                            'sex','mid_or_noon','aniyr_time',
+                                            'clc0tcd0','clc1tcd1','clc0tcd1','clc1tcd0',
+                                            'tcd_open_abs','tcd_forest_abs',
+                                            'clc_open_abs','clc_forest_abs',
+                                            'clc0tcd0_prop','clc1tcd1_prop',
+                                            'clc0tcd1_prop','clc1tcd0_prop',
+                                            'tcd_open_prop','tcd_forest_prop',
+                                            'clc_open_prop','clc_forest_prop')])
+data_final_roe_points$species <- 'roe'
+
+data_final_red_points<-unique(reddeer_data[,c('animals_id','aniyr','study_areas_id','sex',
+                                            'mid_or_noon','aniyr_time',
+                                            'clc0tcd0','clc1tcd1','clc0tcd1','clc1tcd0',
+                                            'tcd_open_abs','tcd_forest_abs',
+                                            'clc_open_abs','clc_forest_abs',
+                                            'clc0tcd0_prop','clc1tcd1_prop',
+                                            'clc0tcd1_prop','clc1tcd0_prop',
+                                            'tcd_open_prop','tcd_forest_prop',
+                                            'clc_open_prop','clc_forest_prop')])
+data_final_red_points$species <- 'red'
+
+data_final_points <- rbind.data.frame(data_final_roe_points,data_final_red_points)
+data_final_points$population <- data_final_points$study_areas_id
+data_final_points$time <- data_final_points$mid_or_noon
+data_final_points[which(data_final_points$mid_or_noon == 'midnight'),'time'] <- 'night'
+data_final_points[which(data_final_points$mid_or_noon == 'noon'),'time'] <- 'day'
+data_final_points$total <- rowSums(data_final_points[,c("clc_open_abs","clc_forest_abs")])
+
+data_final_points<-data_final_points[,c('species','population','study_areas_id',
+                                      'aniyr','animals_id','sex','time','total',
+                                      'clc0tcd0','clc1tcd1', 'clc0tcd1', 'clc1tcd0',
+                                      'tcd_open_abs', 'tcd_forest_abs', 
+                                      'clc_open_abs', 'clc_forest_abs',
+                                      'clc0tcd0_prop', 'clc1tcd1_prop', 
+                                      'clc0tcd1_prop', 'clc1tcd0_prop',
+                                      'tcd_open_prop','tcd_forest_prop',
+                                      'clc_open_prop','clc_forest_prop')]
+
+### write dataset ### 
+
+# write.csv(data_final_points, '../data/1_mismatch_and_modelling/gps_data.csv')
+```
+
