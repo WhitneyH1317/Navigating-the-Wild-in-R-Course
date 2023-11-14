@@ -1,0 +1,115 @@
+---
+title: "2. patch analysis"
+author: "Johannes De Groeve"
+date: "1/27/2021"
+output: html_document
+---
+
+### packages
+```{r message=FALSE, error=FALSE, warning=FALSE}
+# library(reshape)
+# library(ggplot2)
+# library(dplyr)
+# library(yarrr)
+# source('./fncs/21_patch_statistics.R')
+```
+
+### data
+
+Dataset including the patch size for every location of roe and red deer location dataset.
+
+* **aniyr**: unique identifier for animal-year
+* **study_areas_id**: unique identifier study area as defined in the eurodeer database 
+* **sex**: biological sex of the animal
+* **animals_id**: unique identifier of animal as defined in the eurodeer database 
+* **acquisition_time**: UTC date and time corresponding to a location 
+* **x**: x-coordinate of the location using Spatial Reference Identifier SRID 3035 
+* **y**: y-coordinate of the location using Spatial Reference Identifier SRID 3035 
+* **forest_density**: forest density percentage of the location as defined by the Tree Cover Density Dataset (TCD)
+* **corine_land_cover_2012_vector_code**: land cover classification code of the location as defined by Corine Land Cover - Vector (CLC). 
+* **timex**: time in utc
+* **datex**: date
+* **yearx**: year
+* **mid_or_noon**: midnight or noon 
+* **doyx**: day of the year 
+* **min**: minimum doy in dataset
+* **max**: maximum doy in dataset 
+* **diff_doy**: total number of days as defined by the interval (minimum doy to maximum doy)
+* **timex**: time in utc
+* **prop**: overall proportion of locations in the forest as defined by TCD 
+* **prop_night**: proportion of locations in the forest during the night as defined by TCD 
+* **prop_day**: proportion of locations in the forest during the day as defined by TCD 
+* **count**: overall number of locations on which calculations are based 
+* **count_night**: number of locations during the night on which calculations are based 
+* **count_day**: number of locations during the day on which calculations are based 
+* **TCD_forest_patch_size**: patch size in squared meter of forest patch of a location as defined by TCD  
+* **CLC_forest_patch_size**: patch size in squared meter of forest patch of a location as defined by CLC  
+* **TCD_open_patch_size**: patch size in squared meter of open patch of a location as defined by TCD 
+* **CLC_open_patch_size**: patch size in squared meter of open patch of a location as defined by CLC 
+
+```{r message=FALSE, error=FALSE}
+# ce <- read.csv2('../data/2_patchsize/red.csv',dec = ',')
+# ca <- read.csv2('../data/2_patchsize/roe.csv',dec = ',')
+# head(ce)
+# head(ca)
+```
+
+### Apply patch_stat function
+```{r message=FALSE, error=FALSE}
+# # CALCULATE NUMBER OF PATCHES AND NUMBER OF FIXES IN A PATCH SMALLER THAN 25 HECTARE 
+# patch_ce_l <- patch_statistics(ce, patchsize = 250000)
+# patch_ca_l <- patch_statistics(ca, patchsize = 250000)
+```
+
+### nr of small patches  
+
+First, we calculated the number of patches per individual. 
+Then we sum up all the patches over all populations per species. 
+
+```{r message=FALSE, error=FALSE}
+# # NR OF PATCHES 
+# patch_nr_ce <- patch_ce_l[[1]] 
+# patch_nr_ce$species <- 'red'
+# patch_nr_ca <- patch_ca_l[[1]] 
+# patch_nr_ca$species <- 'roe'
+# 
+# patch_nr <- rbind(patch_nr_ce,patch_nr_ca)
+# patch_nr <- melt(patch_nr, id=c("species","animals_id")) 
+# 
+# # STATISTICS ABOUT NR OF PATCHES PER INDIVIDUAL OVER ALL POPULATIONS PER SPECIES 
+# (r <- group_by(patch_nr, species, variable) %>% 
+#     summarise(sum = sum(value), 
+#               mean= mean(value), 
+#               median=median(value), 
+#               max=max(value),
+#               min=min(value)))
+# barplot(r$sum, 
+#         cex.names=0.6,
+#         names.arg=c(paste0(r$species, ' ' , r$variable)), 
+#         main='total number of patches over all population')
+```
+
+### nr of fixes in patches < 25 hectares 
+
+First, we calculated the proportion of fixes that is in a patch smaller than 25 hectare, for each individual. 
+Then, we calculate the mean of that proportion over all populations (and thus all individuals)
+
+```{r message=FALSE, error=FALSE}
+# patch_fx_ce <- patch_ce_l[[2]]
+# patch_fx_ce$species <- 'red'
+# patch_fx_ca <- patch_ca_l[[2]] 
+# patch_fx_ca$species <- 'roe'
+# 
+# patch_fx <- rbind(patch_fx_ce,patch_fx_ca)
+# (r <- group_by(patch_fx, species, variable) %>% 
+#     summarise(mean= mean(Freq), 
+#               median=median(Freq), 
+#               max=max(Freq),
+#               min=min(Freq)))
+# barplot(r$mean, 
+#         cex.names=0.6,
+#         names.arg=c(paste0(r$species, ' ', r$variable)), 
+#         main='mean proportion of fixes in small patches (<25ha) per individual over all populations')
+# #boxplot(Freq ~ species + variable, data=patch_fx, cex.axis=0.6, main='proportion of fixes in small patches (<25 ha) per individual')
+# pirateplot(Freq ~ variable  + species, data=patch_fx, cex.axis=0.6, main='proportion of fixes in small patches (<25 ha) per individual')
+```

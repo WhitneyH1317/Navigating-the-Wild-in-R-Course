@@ -1,0 +1,576 @@
+---
+title: "1. mismatch and modelling"
+author: "Johannes De Groeve"
+date: "1/6/2023"
+output: html_document
+---
+
+#### A. PACKAGES
+
+```{r message=FALSE, error=FALSE, warning=FALSE}
+library(rpostgis)
+library(plyr)
+library(RPostgreSQL)
+library(adehabitatHR)
+library(raster)
+library(sf)
+library(sp)
+library(RgoogleMaps) 
+library(png)
+library(ggplot2)
+library(gridExtra)
+library(grid)
+library(mgcv)
+library(glmmTMB)
+library(RCurl)
+library(lme4)
+library(nlme)
+library(MuMIn)
+library(piecewiseSEM)
+library(Hmisc)
+```
+
+
+#### B. FUNCTIONS 
+
+```{r message=FALSE, error=FALSE, warning=FALSE, results=FALSE}
+'%!in%' <- function(x,y)!('%in%'(x,y)) # create 'not in' operator
+lapply(list.files(pattern= '^1.*', path='./fncs/',full.names=TRUE), source)
+source(list.files(pattern= '^00.*', path='./fncs/',full.names=TRUE))
+```
+
+
+#### C. DATA PREPARATION
+
+#### C1. DATA IMPORT
+
+```{r message=FALSE, error=FALSE}
+point_data <- read.csv(paste0('../data/1_mismatch_and_modelling/gps_data.csv'), stringsAsFactors=FALSE)
+kernel_data <- read.csv(paste0('../data/1_mismatch_and_modelling/kde_data.csv'), stringsAsFactors=FALSE)
+```
+
+#### C1.1 gps_data
+
+Data set with absolute number and proportion of locations classified as forest/open habitat by TCD and CLC for every individual's day and night locations
+
+* **species**: roe or red deer
+* **population**: unique identifier study area as defined in the eurodeer database
+* **study_areas_id**: unique identifier study area as defined in the eurodeer database
+* **aniyr**: unique identifier for animal-year
+* **animals_id**: unique identifier of animal as defined in the eurodeer database
+* **sex**: biological sex of the animal
+* **time**: day or night time
+* **total**: total number of locations per day/night and aniyr
+* **clc0tcd0**: number of locations in open habitat both for CLC and TCD per day/night and aniyr
+* **clc1tcd1**: number of locations in forest habitat both for CLC and TCD per day/night and aniyr
+* **clc0tcd1**: number of locations in open habitat for CLC and in forest habitat for TCD per day/night and aniyr
+* **clc1tcd0**: number of locations in forest habitat for CLC and in open habitat for TCD per day/night and aniyr
+* **tcd_open_abs**: absolute number of locations in open habitat according to TCD per day/night and aniyr
+* **tcd_forest_abs**: absolute number of locations in forest habitat according to TCD per day/night and aniyr
+* **clc_open_abs**: absolute number of locations in open habitat according to CLC per day/night and aniyr
+* **clc_forest_abs**: absolute number of locations in forest habitat according to CLC per day/night and aniyr
+* **clc0tcd0_prop**: proportion of locations in open habitat both for CLC and TCD per day/night and aniyr
+* **clc1tcd1_prop**: proportion of locations in forest habitat both for CLC and TCD per day/night and aniyr
+* **clc0tcd1_prop**: proportion of locations in open habitat for CLC and in forest habitat for TCD per day/night and aniyr
+* **clc1tcd0_prop**: proportion of locations in forest habitat for CLC and in open habitat for TCD per day/night and aniyr
+* **tcd_open_prop**: proportion of locations in open habitat according to TCD per day/night and aniyr
+* **tcd_forest_prop**: proportion of locations in forest habitat according to TCD per day/night and aniyr
+* **clc_open_prop**: proportion of locations in open habitat according to CLC per day/night and aniyr
+* **clc_forest_prop**: proportion of locations in forest habitat according to CLC per day/night and aniyr
+
+#### C1.2 kde_data
+
+Data set with absolute number and proportion of cells within the KDE classified as forest/open habitat by TCD and CLC for every individual's day and night home range
+
+* **species**: roe or red deer
+* **population**: unique identifier study area as defined in the eurodeer database
+* **study_areas_id**: unique identifier study area as defined in the eurodeer database
+* **aniyr**: unique identifier for animal-year
+* **animals_id**: unique identifier of animal as defined in the eurodeer database
+* **area**: surface area
+* **time**: day or night time
+* **total**: total number of cells within the day/night home range of the aniyr
+* **clc0tcd0**: number of cells in open habitat both for CLC and TCD per day/night and aniyr
+* **clc1tcd1**: number of cells in forest habitat both for CLC and TCD per day/night and aniyr
+* **clc0tcd1**: number of cells in open habitat for CLC and in forest habitat for TCD per day/night and aniyr
+* **clc1tcd0**: number of cells in forest habitat for CLC and in open habitat for TCD per day/night and aniyr
+* **open_tcd**: absolute number of cells of locations in open habitat according to TCD per day/night and aniyr
+* **forest_tcd**: absolute number of cells of locations in forest habitat according to TCD per day/night and aniyr
+* **open_clc**: absolute number of cells of locations in open habitat according to CLC per day/night and aniyr
+* **forest_clc**: absolute number of cells of locations in forest habitat according to CLC per day/night and aniyr
+* **clc0tcd0_prop**: proportion of cells in open habitat both for CLC and TCD per day/night and aniyr
+* **clc1tcd1_prop**: proportion of cells in forest habitat both for CLC and TCD per day/night and aniyr
+* **clc0tcd1_prop**: proportion of cells in open habitat for CLC and in forest habitat for TCD per day/night and aniyr
+* **clc1tcd0_prop**: proportion of cells in forest habitat for CLC and in open habitat for TCD per day/night and aniyr
+* **open_tcd_prop**: proportion of cells in open habitat according to TCD per day/night and aniyr
+* **forest_tcd_prop**: proportion of cells in forest habitat according to TCD per day/night and aniyr
+* **open_clc_prop**: proportion of cells in open habitat according to CLC per day/night and aniyr
+* **forest_clc_prop**: proportion of cells in forest habitat according to CLC per day/night and aniyr  
+
+#### C2. DATA PREPARATION
+
+```{r message=FALSE, error=FALSE}
+# add aniyr species column 
+point_data$aniyr_species <- paste0(point_data$aniyr,'_',point_data$species)
+kernel_data$aniyr_species <- paste0(kernel_data$aniyr,'_',kernel_data$species)
+
+# rename columns so that kernel and point column names are identical
+colnames(kernel_data)[10:ncol(kernel_data)] <- colnames(point_data)[10:ncol(point_data)]
+
+aniyr_species <- kernel_data$aniyr_species
+kernel_data <- cbind(aniyr_species,kernel_data[,2:(ncol(kernel_data)-1)])
+
+aniyr_species <- point_data$aniyr_species
+point_data <- cbind(aniyr_species,point_data[,2:(ncol(point_data)-1)])
+
+# add column for year 
+point_data$yearx <- gsub('[0-9]*._','', point_data$aniyr)
+kernel_data$yearx <- gsub('[0-9]*._','', kernel_data$aniyr)
+
+# Check which animals have only one observation (day or night)
+remove <-unlist(as.vector(subset(plyr::count(kernel_data$aniyr),freq==1)[,'x']))
+kernel_data <- subset(kernel_data, aniyr %!in% remove)
+point_data <- point_data[which(point_data$aniyr_species %in% unique(kernel_data$aniyr_species)),] # remove animals that were not included in the kernel calculations
+
+# split in order to join both day and night 
+
+# ROE DEER 
+# KERNEL
+roe_kernel <- subset(kernel_data, species == 'roe') # subset roe
+roed_kernel <-roe_kernel[which(roe_kernel$time == 'day'),] # subset roe during daytime
+roen_kernel <- roe_kernel[which(roe_kernel$time == 'night'),] # subset roe during nightime
+colnames(roed_kernel)[7:length(colnames(roed_kernel))] <- paste0(colnames(roed_kernel)[7:length(colnames(roed_kernel))],'_d') # add _d to the column names of daylight dataset
+colnames(roen_kernel)[7:length(colnames(roen_kernel))] <- paste0(colnames(roen_kernel)[7:length(colnames(roen_kernel))],'_n') # add _n to the column names of daylight dataset
+roej_kernel <- plyr::join(roed_kernel,roen_kernel, 'inner', by=c('aniyr_species','species','population','study_areas_id','aniyr','animals_id')) # if a record for day or night is missing for a deer it is excluded - hence INNER join
+
+# POINTS
+roe_points <- subset(point_data, species == 'roe') # subset roe
+roed_points <-roe_points[which(roe_points$time == 'day'),] # subset roe during daytime
+roen_points <- roe_points[which(roe_points$time == 'night'),] # subset roe during nightime
+colnames(roed_points)[8:length(colnames(roed_points))] <- paste0(colnames(roed_points)[8:length(colnames(roed_points))],'_d') # add _d to the column names of daylight dataset
+colnames(roen_points)[8:length(colnames(roen_points))] <- paste0(colnames(roen_points)[8:length(colnames(roen_points))],'_n') # add _n to the column names of daylight dataset
+roej_points <- plyr::join(roed_points,roen_points, 'inner', by=c('aniyr_species','species','population','study_areas_id','aniyr','animals_id','sex')) # if a record for day or night is missing for a deer it is excluded - hence INNER join
+
+# RED DEER 
+# KERNEL
+red_kernel <- subset(kernel_data, species == 'red') # subset red
+redd_kernel <-red_kernel[which(red_kernel$time == 'day'),] # subset roe during daytime
+redn_kernel <- red_kernel[which(red_kernel$time == 'night'),] # subset roe during nightime
+colnames(redd_kernel)[7:length(colnames(redd_kernel))] <- paste0(colnames(redd_kernel)[7:length(colnames(redd_kernel))],'_d') # add _d to the column names of daylight dataset
+colnames(redn_kernel)[7:length(colnames(redn_kernel))] <- paste0(colnames(redn_kernel)[7:length(colnames(redn_kernel))],'_n') # add _n to the column names of daylight dataset
+redj_kernel <- plyr::join(redd_kernel,redn_kernel, 'inner', by=c('aniyr_species','species','population','study_areas_id','aniyr','animals_id')) # if a record for day or night is missing for a deer it is excluded - hence INNER join
+
+# POINTS
+red_points <- subset(point_data, species == 'red') # subset red
+redd_points <-red_points[which(red_points$time == 'day'),] # subset roe during daytime
+redn_points <- red_points[which(red_points$time == 'night'),] # subset roe during nightime
+colnames(redd_points)[8:length(colnames(redd_points))] <- paste0(colnames(redd_points)[8:length(colnames(redd_points))],'_d') # add _d to the column names of daylight dataset
+colnames(redn_points)[8:length(colnames(redn_points))] <- paste0(colnames(redn_points)[8:length(colnames(redn_points))],'_n') # add _n to the column names of daylight dataset
+redj_points <- plyr::join(redd_points,redn_points, 'inner', by=c('aniyr_species','species','population','study_areas_id','aniyr','animals_id','sex')) # if a record for day or night is missing for a deer it is excluded - hence INNER join
+
+# fixes per species 
+roe_fixes <- sum(roej_points$total_n + roej_points$total_d)
+red_fixes <- sum(redj_points$total_n + redj_points$total_d)
+# fixes in total 
+sum(roe_fixes,red_fixes)
+
+# number of animals per population
+
+# ROE DEER 
+(nroe_animals_pop <- plyr::count(unique(roe_points[,c('animals_id','population')])$population))
+(nroe_aniyrs_pop <- plyr::count(unique(roe_points[,c('aniyr','population')])[,'population']))
+(freqroe_ani_aniyr <- plyr::join(nroe_animals_pop, nroe_aniyrs_pop, type='inner', by='x'))
+colnames(freqroe_ani_aniyr) <- c('population','n_animals','n_aniyrs')
+
+# RED DEER
+(nred_animals_pop <- plyr::count(unique(red_points[,c('animals_id','population')])$population))
+(nred_aniyrs_pop <- plyr::count(unique(red_points[,c('aniyr','population')])[,'population']))
+(freqred_ani_aniyr <- plyr::join(nred_animals_pop, nred_aniyrs_pop, type='inner', by='x'))
+colnames(freqred_ani_aniyr) <- c('population','n_animals','n_aniyrs')
+
+# animals per population per year 
+(roe_per_year <- (plyr::count(roe_points[,c('population','yearx')])))
+(red_per_year <- (plyr::count(red_points[,c('population','yearx')])))
+
+# only keep the most prevalent year in some populations to minimize pseudo-replication 
+
+# ROE DEER
+france_roe <- unique(subset(roe_points, population == 8 & yearx == 2011)[,'animals_id'])
+bavaria_roe <- unique(subset(roe_points, population == 2 & yearx == 2010)[,'animals_id'])
+swiss_roe <- unique(subset(roe_points, population == 25 & yearx == 2014)[,'animals_id'])
+germany_roe <- unique(subset(roe_points, population == 15)[,'animals_id'])
+italy_roe <- unique(subset(roe_points, population == 1)[,'animals_id'])
+
+subset_roe <- subset(roe_points, animals_id %in% c(france_roe,bavaria_roe,swiss_roe, germany_roe, italy_roe))
+aniyrs_subset_roe <- plyr::count(unique(subset_roe[,c('animals_id','yearx','population')])[,'population'])
+animals_subset_roe <- plyr::count(unique(subset_roe[,c('animals_id','population')])[,'population'])
+subset_sum_roe <- plyr::join(aniyrs_subset_roe, animals_subset_roe, by ='x',type='left')
+subset_sum_roe$diff <- subset_sum_roe[,2]-subset_sum_roe[,3]
+subset_sum_roe
+(nr_aniyrs_roe <- sum(subset_sum_roe[,2]))
+(nr_anis_roe <- sum(subset_sum_roe[,3]))
+
+# RED DEER
+italy_red <- unique(subset(red_points, population == 3)[,'animals_id'])
+bavaria_red <- unique(subset(red_points, population == 8 & yearx %in% c(2011,2012,2013))[,'animals_id'])
+germany_red <- unique(subset(red_points, population == 14)[,'animals_id'])
+belgium_a_red <- unique(subset(red_points, population == 17)[,'animals_id'])
+belgium_b_red <- unique(subset(red_points, population == 21)[,'animals_id'])
+
+subset_red <- subset(red_points, animals_id %in% c(italy_red,bavaria_red,germany_red,belgium_a_red,belgium_b_red))
+aniyrs_subset_red <- plyr::count(unique(subset_red[,c('animals_id','yearx','population')])[,'population'])
+animals_subset_red <- plyr::count(unique(subset_red[,c('animals_id','population')])[,'population'])
+subset_sum_red <- plyr::join(aniyrs_subset_red, animals_subset_red, by ='x',type='left')
+subset_sum_red$diff <- subset_sum_red[,2]-subset_sum_red[,3]
+subset_sum_red
+(nr_aniyrs_red <- sum(subset_sum_red[,2]))
+(nr_anis_red <- sum(subset_sum_red[,3]))
+
+# filter animals that are kept for further analysis
+roe_points <- subset(roe_points, animals_id %in% c(france_roe,bavaria_roe,swiss_roe,germany_roe,italy_roe)) 
+red_points <- subset(red_points, animals_id %in% c(italy_red,bavaria_red,germany_red,belgium_a_red,belgium_b_red))
+roe_kernel <- subset(roe_kernel, animals_id %in% c(france_roe,bavaria_roe,swiss_roe,germany_roe,italy_roe)) 
+red_kernel <- subset(red_kernel, animals_id %in% c(italy_red,bavaria_red,germany_red,belgium_a_red,belgium_b_red))
+
+roej_points <- subset(roej_points, animals_id %in% c(france_roe,bavaria_roe,swiss_roe,germany_roe,italy_roe))
+redj_points <- subset(redj_points, animals_id %in% c(italy_red,bavaria_red,germany_red,belgium_a_red,belgium_b_red))
+roej_kernel <- subset(roej_kernel, animals_id %in% c(france_roe,bavaria_roe,swiss_roe,germany_roe,italy_roe))
+redj_kernel <- subset(redj_kernel, animals_id %in% c(italy_red,bavaria_red,germany_red,belgium_a_red,belgium_b_red))
+
+# number of remaining gps points
+(roenr_points <- sum(roe_points$tcd_open_abs) + sum(roe_points$tcd_forest_abs))
+(rednr_points <- sum(red_points$tcd_open_abs) + sum(red_points$tcd_forest_abs))
+
+# number of remaining roe and red deer per year per population
+(roe_per_year <- (plyr::count(unique(roe_points[,c('animals_id','population','yearx')])[,c('population','yearx')])))
+(red_per_year <- (plyr::count(unique(red_points[,c('animals_id','population','yearx')])[,c('population','yearx')])))
+
+# bind roe and red deer datasets
+POINT_DATA <- rbind(roe_points,red_points)
+KERNEL_DATA <- rbind(roe_kernel,red_kernel)
+```
+
+#### C3. DATA EXPORT
+
+```{r message=FALSE, error=FALSE}
+# write.csv(POINT_DATA, '../data/1_mismatch_and_modelling/gps_for_model.csv')
+# write.csv(KERNEL_DATA,'../data/1_mismatch_and_modelling/kde_for_model.csv')
+```
+
+#### D. MISMATCH
+
+Classification mismatch between TCD and CLC in red and roe deer GPS locations 
+
+#### D1. Table 3a: confusion matrix values
+
+```{r message=FALSE, error=FALSE}
+# absolute 
+(tot_roe <-colSums(roe_points[,c("clc0tcd1","clc1tcd0","clc0tcd0","clc1tcd1")]))
+(tot_red <-colSums(red_points[,c("clc0tcd1","clc1tcd0","clc0tcd0","clc1tcd1")]))
+# proportion
+(prop_roe <-colSums(roe_points[,c("clc0tcd1","clc1tcd0","clc0tcd0","clc1tcd1")])/sum(tot_roe))
+(prop_red <-colSums(red_points[,c("clc0tcd1","clc1tcd0","clc0tcd0","clc1tcd1")])/sum(tot_red))
+
+## Total mismatch
+
+# absolute 
+(tot_roe_mismatch<-sum(tot_roe[1:2]))
+(prop_roe_mismatch<-sum(prop_roe[1:2]))
+# proportion 
+(tot_red_mismatch<-sum(tot_red[1:2]))
+(prop_red_mismatch<-sum(prop_red[1:2]))
+
+
+## Proportion of forest and open according to clc and tcd 
+(forest_roe_clc <- sum(prop_roe[c('clc1tcd0','clc1tcd1')]))*100
+(forest_roe_tcd <- sum(prop_roe[c('clc0tcd1','clc1tcd1')]))*100
+(forest_red_clc <- sum(prop_red[c('clc1tcd0','clc1tcd1')]))*100
+(forest_red_tcd <- sum(prop_red[c('clc0tcd1','clc1tcd1')]))*100
+```
+
+#### D2. Boxplots (not in ms)
+
+```{r message=FALSE, error=FALSE, dpi=350, fig.width = 11, fig.height=8}
+res2=300
+dims=480/72*res2
+
+# are there identical animal years for roe and red?
+length(unique(c(roej_points$aniyr,redj_points$aniyr))) == length(c(roej_points$aniyr,redj_points$aniyr))
+length(unique(c(roej_points$aniyr,redj_points$aniyr))) 
+length(c(roej_points$aniyr,redj_points$aniyr))
+
+aniyr <- c(roej_points$aniyr,redj_points$aniyr) # note: there are no common id.year in roe and red deer
+
+#### D2.1 Figure: proportion of forest #### 
+
+## Proportion of forest for roe and red deer during day and night by TCD and CLC ##
+proportion_plot()
+
+# export(func=proportion_plot(),file="../results/boxplots_proportion_of_forest_CLC_TCD_F",res=300, ratio=1.5, type='pdf')
+# export(func=proportion_plot(),file="../results/boxplots_proportion_of_forest_CLC_TCD_F",res=300, ratio=1.5, type='png')
+# export(func=proportion_plot(),file="../results/boxplots_proportion_of_forest_CLC_TCD_F",res=300, ratio=1.5, type='tif')
+```
+
+#### D2.2 Figure: mismatch between TCD and CLC
+
+```{r message=FALSE, error=FALSE, dpi=350, fig.width = 11, fig.height=8}
+boxplot_mismatch()
+
+# export(func=boxplot_mismatch(withbox=TRUE),file="../results/boxplots_mismatch_CLC_TCD_withcolbox",res=300, ratio=1.5, type='pdf')
+# export(func=boxplot_mismatch(withbox=TRUE),file="../results/boxplots_mismatch_CLC_TCD_withcolbox",res=300, ratio=1.5, type='png')
+# export(func=boxplot_mismatch(withbox=TRUE),file="../results/boxplots_mismatch_CLC_TCD_withcolbox",res=300, ratio=1.5, type='tif')
+```
+
+#### E. STATISTICAL ANALYSIS
+
+model with forest proportion as response variable 
+
+#### E1. DATA IMPORT
+
+```{r message=FALSE, error=FALSE}
+#setwd('/Users/jedgroev/OneDrive - UvA/1_FEM_CRI/PAPERS/MARCO/')
+point_data <- read.csv(paste0('../data/1_mismatch_and_modelling/gps_for_model.csv'), stringsAsFactors = FALSE)
+kernel_data <- read.csv(paste0('../data/1_mismatch_and_modelling/kde_for_model.csv'), stringsAsFactors = FALSE)
+```
+
+#### E2. DATA PREPARATION FOR MODEL
+
+```{r message=FALSE, error=FALSE}
+# convert to factors 
+point_data$animals_id_fact <- as.factor(point_data$animals_id)
+point_data$population <- factor(paste0(point_data$species,'_',point_data$study_areas_id), levels = unique(sort(paste0(point_data$species,'_',point_data$study_areas_id),decreasing = TRUE)))
+point_data$time <- factor(point_data$time)
+
+kernel_data$animals_id_fact <- as.factor(kernel_data$animals_id)
+kernel_data$population <-  factor(paste0(kernel_data$species,'_',kernel_data$study_areas_id), levels = unique(sort(paste0(kernel_data$species,'_',kernel_data$study_areas_id),decreasing = TRUE)))
+kernel_data$time <- factor(kernel_data$time)
+
+# data frames to define order of the population in the plot 
+
+# RED DEER
+(red_pops_or <- data.frame(ord= 6:10, 
+                           population=c('red_3','red_14','red_8','red_21','red_17'), 
+                           popname= c('N-Italy', 'N-Germany','SE-Germany', 'SE-Belgium', 'SW-Belgium'),
+                           stringsAsFactors = FALSE))
+# ROE DEER
+(roe_pops_or <-data.frame(ord=1:5, 
+                          population=c('roe_8','roe_15','roe_25','roe_1','roe_2'),
+                          popname=c('SW-France', 'SW-Germany', 'Switzerland', 'N-Italy', 'SE-Germany'),
+                          stringsAsFactors = FALSE))
+
+roered_pops_df <- rbind(roe_pops_or,red_pops_or)
+
+point_data <- plyr::join(point_data, roered_pops_df, type='left', by='population')
+kernel_data <- plyr::join(kernel_data, roered_pops_df, type='left', by='population')
+```
+
+#### E3. Exploratory plots (not in ms) 
+
+```{r message=FALSE, error=FALSE, dpi=300, fig.width = 13, fig.height=8}
+#### Figure: Proportion of forest according to tcd and clc in day and night ####
+par(mfrow=c(2,1), mar=c(10,4,2,2))
+prop <- aggregate(. ~ popname + time ,data=point_data[, c('popname','total','time','tcd_forest_abs','clc_forest_abs','tcd_open_abs','clc_open_abs')],sum)
+prop$tcd_forest_abs <- prop$tcd_forest_abs/prop$total
+prop$clc_forest_abs <- prop$clc_forest_abs/prop$total
+prop$tcd_open_abs <- prop$tcd_open_abs/prop$total
+prop$clc_open_abs <- prop$clc_open_abs/prop$total
+prop <- plyr::join(prop,roered_pops_df[,c('ord','popname')], type='left', by='popname')
+prop <- prop[order(prop$ord, prop$time),]
+a <- t(as.matrix(prop[,c('tcd_forest_abs','tcd_open_abs')]))
+b <- t(as.matrix(prop[,c('clc_forest_abs','clc_open_abs')]))
+colnames(a) <- paste0(prop$popname, '_',prop$time)
+colnames(b) <- paste0(prop$popname, '_',prop$time)
+barplot(a, las=2,main='tcd', space=c(0,rep(c(0,0.5),10))[1:20])
+barplot(b, las=2,main='clc', space=c(0,rep(c(0,0.5),10))[1:20])
+
+#### Figure: confusion matrix as barplots (per population and day vs night) ####
+par(mfrow=c(1,1), mar=c(10,4,2,0))
+prop <- aggregate(. ~ popname + time ,
+                  data=point_data[, c('popname','total','time','clc0tcd0','clc1tcd0','clc1tcd1','clc0tcd1')],sum)
+prop$clc0tcd0 <- prop$clc0tcd0/prop$total
+prop$clc1tcd0 <- prop$clc1tcd0/prop$total
+prop$clc1tcd1 <- prop$clc1tcd1/prop$total
+prop$clc0tcd1 <- prop$clc0tcd1/prop$total
+prop <- plyr::join(prop,roered_pops_df[,c('ord','popname')], type='left', by='popname')
+prop <- prop[order(prop$ord, prop$time),]
+a <- t(as.matrix(prop[,c('clc1tcd1','clc0tcd1','clc0tcd0','clc1tcd0')]))
+colnames(a) <- paste0(prop$popname, '_',prop$time)
+barplot(a, 
+        las=2,
+        main='tcd', 
+        space=c(0,rep(c(0,0.5),10))[1:20], 
+        col=c('forestgreen','blue','darkolivegreen1','lightblue'))
+
+
+#### Figure: Bar and boxplots of forest proportion ####
+par(mfrow=c(1,1), mar=c(6,0,2,0))
+forest_proportion_barboxplot()
+
+# export(func=forest_proportion_barboxplot(),file="../results/forest_proportion_barboxplot",res=300, ratio=1.5, type='pdf')
+# export(func=forest_proportion_barboxplot(),file="../results/forest_proportion_barboxplot",res=300, ratio=1.5, type='png')
+# export(func=forest_proportion_barboxplot(),file="../results/forest_proportion_barboxplot",res=300, ratio=1.5, type='tif')
+```
+
+#### E4. MODELS 
+
+```{r message=FALSE, error=FALSE, warning=FALSE, dpi=300, fig.width = 13, fig.height=8}
+# make a subset for each species and method (KDE/TCD)
+sub_roe_point <- subset(point_data,species=='roe')
+sub_red_point <- subset(point_data,species=='red')
+sub_roe_kernel <- subset(kernel_data,species=='roe')
+sub_red_kernel <- subset(kernel_data,species=='red')
+
+# remove unnecessary factor levels  
+sub_roe_point[] <- lapply(sub_roe_point, function(x) if(is.factor(x)) factor(x) else x)
+sub_red_point[] <- lapply(sub_red_point, function(x) if(is.factor(x)) factor(x) else x)
+sub_roe_kernel[] <- lapply(sub_roe_kernel, function(x) if(is.factor(x)) factor(x) else x)
+sub_red_kernel[] <- lapply(sub_red_kernel, function(x) if(is.factor(x)) factor(x) else x)
+
+
+#### E4.1 models and model selection ####
+
+mods <- model_selection()
+
+models <- mods[[1]]
+best <- mods[[2]]
+
+#### E4.2 rsquares ####
+
+(rsq_model <- lapply(models, function(x) rsquared(x)))
+names(rsq_model) <-  c('tcd_gps-roe','clc_gps-roe','tcd_kde-roe','clc_kde-roe',
+                       'tcd_gps-red','clc_gps-red','tcd_kde-red','clc_kde-red')
+
+rsq_rand_vs_model <- list(data.frame())
+for(i in 1:length(models)){
+  rsq_rand_vs_model[[i]] <- cbind(rsq_model[[i]])
+}
+names(rsq_rand_vs_model) <-  c('tcd_gps-roe','clc_gps-roe','tcd_kde-roe','clc_kde-roe',
+                               'tcd_gps-red','clc_gps-red','tcd_kde-red','clc_kde-red')
+
+rsq_rand_vs_model <- do.call(rbind.data.frame, rsq_rand_vs_model)
+colnames(rsq_rand_vs_model) <- paste0(colnames(rsq_rand_vs_model), c('-model','-model'))
+rsq_rand_vs_model$`R.squared-model` <- round(rsq_rand_vs_model$`R.squared-model`,4)
+
+#write.csv(rsq_rand_vs_model, '../results/rsq_models.csv')
+
+
+#### E4.3 model results table ####
+
+datasets <- list(sub_roe_point,sub_roe_point,sub_roe_kernel,sub_roe_kernel,
+                 sub_red_point,sub_red_point,sub_red_kernel,sub_red_kernel)
+model_names <- c('GPS-TCD','GPS-CLC','KDE-TCD','KDE-CLC','GPS-TCD','GPS-CLC','KDE-TCD','KDE-CLC')
+models_summary <- lapply(models, function(x) summary(x))
+models_coef <- lapply(models_summary, function(x) as.data.frame(x$tTable[,c(1,2,4)]))
+for(i in 1:length(models_coef))
+{
+  colnames(models_coef[[i]]) <- c('Estimate','se','sig')
+  models_coef[[i]] <- round(models_coef[[i]],2) 
+  #  models_coef[[i]]$sig <- as.data.frame(models_coef[[i]])$sig > 0.1
+  models_coef[[i]][which(models_coef[[i]]$sig <= 0.1),'sig'] <- NA
+  models_coef[[i]][which(models_coef[[i]]$sig > 0.1),'sig'] <- '(NS)'
+  models_coef[[i]]$model <- c(model_names[i])
+  models_coef[[i]]$estimate <- paste0(models_coef[[i]]$Estimate,'+/-',models_coef[[i]]$se,models_coef[[i]]$sig)
+  models_coef[[i]]$species <- c(c('roe','roe','roe','roe','red','red','red','red')[i])
+  models_coef[[i]] <- models_coef[[i]][,c('species','estimate')]
+  colnames(models_coef[[i]]) <- c(model_names[i],model_names[i]) 
+}
+
+# GPS KDE roe 
+roe_models <- cbind(models_coef[[1]],models_coef[[2]],models_coef[[3]],models_coef[[4]])[,c(1,seq(2,8,2))]
+# GPS KDE red 
+#models_coef[[8]]<- rbind(models_coef[[8]][1,],c(NA,NA,NA),models_coef[[8]][2:5,])
+red_models <- cbind(models_coef[[5]],models_coef[[6]],models_coef[[7]],models_coef[[8]])[,c(1,seq(2,8,2))]
+(roe_red_models <- rbind(roe_models, red_models))
+
+#write.csv(roe_red_models,'../results/models_roe_red_round.csv')
+
+
+#### E4.4 Predictions ####
+
+# Preparation 
+
+# data frames to define order of the population in the plot 
+# red
+(red_pops_or <- data.frame(ord= c(1,2,3,4,5), 
+                           population=c('red_3','red_14','red_8','red_21','red_17'), 
+                           popname= c('N-Italy','N-Germany','SE-Germany','SE-Belgium','SW-Belgium'),
+                           stringsAsFactors = FALSE))
+# roe
+(roe_pops_or <-data.frame(ord=1:5, 
+                          population=c('roe_8','roe_15','roe_25','roe_1','roe_2'),
+                          popname=c('SW-France','SW-Germany','Switzerland','N-Italy','SE-Germany'),
+                          stringsAsFactors = FALSE))
+
+# repeat the dataframe so to use them accordingly in the loop 
+roered_popsor <- list(roe_pops_or,roe_pops_or,roe_pops_or,roe_pops_or,red_pops_or,red_pops_or,red_pops_or,red_pops_or)
+
+# predictions 
+datasets <- list(sub_roe_point,sub_roe_point,sub_roe_kernel,sub_roe_kernel,sub_red_point,sub_red_point,sub_red_kernel,sub_red_kernel)
+res <- list(data.frame())
+for(i in 1:length(models)){
+  # create new datset with all combinations of populations and day/night
+  newdata = unique(datasets[[i]][,c('population','time')])
+  # predict using the type response and include se.fit
+  pr <- predict(models[[i]], newdata, type="response",se.fit=TRUE)
+  # add the fit and se to the newdata dataframe 
+  newdata$pred <- pr$fit
+  newdata$se.pred <- pr$se.fit
+  # get the family of the model 
+  family <- family(models[[i]])
+  # perform linkinv to get the upper and lower confidence levels 
+  newdata$lower <- family$linkinv(pr$fit - qnorm(0.95) * pr$se.fit)   
+  newdata$upper <- family$linkinv(pr$fit + qnorm(0.95) * pr$se.fit)
+  # calculate the probabilities from the predictions 
+  newdata$probs <- exp(newdata$pred)/(1+exp(newdata$pred)) #gives you probability that y=1 for each observation
+  # join the population table created above (roered_popsor)
+  newdata<- plyr::join(newdata, roered_popsor[[i]],type='left',by='population')
+  # sort based on the column ord (order) and time 
+  res[[i]]<- newdata[order(newdata$ord,newdata$time),]
+}
+
+modnames <-  c('roe_gps_tcd','roe_gps_clc','roe_kde_tcd','roe_kde_clc','red_gps_tcd','red_gps_clc','red_kde_tcd','red_kde_clc')
+names(res) <- modnames
+
+# increase in proportional use between night and day 
+dvn <- list()
+nvd <- list()
+for(i in 1:length(res)){
+  dvn[[i]] <- (subset(res[[i]], time == 'day')$pred ) / (subset(res[[i]],time=='night')$pred)
+  nvd[[i]] <- (subset(res[[i]], time == 'night')$pred ) / (subset(res[[i]],time=='day')$pred)
+}
+names(dvn) <- modnames 
+names(nvd) <- modnames 
+
+dvn_mean <- lapply(dvn, function(x) mean(x))
+dvn_sd <- lapply(dvn, function(x) sd(x))
+dvn_min <- lapply(dvn, function(x) min(x))
+dvn_max <- lapply(dvn, function(x) max(x))
+
+nvd_mean <- lapply(nvd, function(x) mean(x))
+nvd_sd <- lapply(nvd, function(x) sd(x))
+nvd_min <- lapply(nvd, function(x) min(x))
+nvd_max <- lapply(nvd, function(x) max(x))
+
+dvnnvd <- as.data.frame(unlist(dvn_mean))
+colnames(dvnnvd) <- 'mean_dvn'
+dvnnvd$sd_dvn <- as.vector(unlist(dvn_sd))
+dvnnvd$min_dvn <- as.vector(unlist(dvn_min))
+dvnnvd$max_dvn <- as.vector(unlist(dvn_max))
+
+dvnnvd$mean_nvd <- 1 - as.vector(unlist(nvd_mean))
+dvnnvd$sd_nvd <- as.vector(unlist(nvd_sd))
+dvnnvd$min_nvd <- 1 - as.vector(unlist(nvd_min))
+dvnnvd$max_nvd <- 1 - as.vector(unlist(nvd_max))
+
+#write.csv(dvnnvd, '../results/difference_between_dayandnight.csv')
+
+#### E4.5 Figure 4: Predictions Plot ####
+
+res <- res[c(5:8,1:4)]
+best <- best[c(5:8,1:4),]
+plot_predictions()
+
+# export(func=plot_predictions(),file="../results/FIGURE4",res=600, ratio=2, type='pdf')
+# export(func=plot_predictions(),file="../results/FIGURE4",res=600, ratio=2, type='png')
+# export(func=plot_predictions(),file="../results/FIGURE4",res=600, ratio=2, type='tif')
+```

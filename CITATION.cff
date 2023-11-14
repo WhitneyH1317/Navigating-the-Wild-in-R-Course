@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this course, please cite it as below."
+authors:
+- family-names: "Whitney"
+  given-names: "Hanson"
+  orcid: "YOUR ORCID"
+- family-names: "De Groeve"
+  given-names: "Johannes"
+  orcid: "https://orcid.org/0000-0002-1274-3237"
+title: "Navigating the wild in R Course"
+version: 1.0.0
+doi: doidoidoi
+date-released: 2023-11-15
+url: "https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course"

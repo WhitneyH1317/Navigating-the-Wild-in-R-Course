@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Reproduction Package Eurodeer paper n. 016</title>
+
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/spacelab.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+<link rel="stylesheet" href="html-md-01.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Reproduction Package Eurodeer paper n. 016</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Topics
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="./code/0_data_preparation.html">data preparation</a>
+    </li>
+    <li>
+      <a href="./code/1_mismatch_and_modelling.html">mismatch and modelling</a>
+    </li>
+    <li>
+      <a href="./code/2_patchsize.html">patchsize</a>
+    </li>
+    <li>
+      <a href="./code/3_validation_gps.html">GPS validation</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Reproduction Package Eurodeer paper n. 016</h1>
+
+</div>
+
+
+<p>Datasets and analysis scripts of Salvatori, De Groeve et al. (2022).</p>
+<ul>
+<li>www: <a href="https://euromammals.github.io/RP016/">RP016</a></li>
+<li>repository: <a href="https://github.com/EUROMAMMALS/RP016">RP016</a></li>
+</ul>
+<div id="directory-structure" class="section level1">
+<h1>Directory Structure</h1>
+<p>The repository contains the following files and directories:</p>
+<pre><code>. 
+├── README.md
+├── RP016.Rproj
+├── code
+│   ├── 0_data_preparation.sql
+│   ├── 0_data_preparation.Rmd
+│   ├── 0_data_preparation.html
+│   ├── 1_mismatch_and_modelling.Rmd
+│   ├── 1_mismatch_and_modelling.html
+│   ├── 2_patchsize.Rmd
+│   ├── 2_patchsize.html
+│   ├── 3_validation_gps.Rmd
+│   ├── 3_validation_gps.html
+│   └── fncs
+│       ├── 00_basic.R
+│       ├── 01_compute_kde.R
+│       ├── 02_reclass_rast.R
+│       ├── 03_intersect_rast_gps.R
+│       ├── 04_intersect_rast_kde.R
+│       ├── 11_boxplot_mismatch.R
+│       ├── 11_confusion_scheme.R
+│       ├── 11_forest_proportion_barboxplot.R
+│       ├── 11_model_selection.R
+│       ├── 11_plot_predictions.R
+│       ├── 11_proportion_plot.R
+│       └── 21_patch_statistics.R
+├── data
+│   ├── 1_mismatch_and_modelling
+│   │   ├── gps_data.csv
+│   │   ├── gps_for_model.csv
+│   │   ├── kde_data.csv
+│   │   └── kde_for_model.csv
+│   ├── 2_patchsize
+│   │   ├── red.csv
+│   │   └── roe.csv
+│   ├── 3_validation_gps
+│   │   ├── red.csv
+│   │   └── roe.csv
+│   └── raw
+│       ├── gps
+│       │   ├── red_rds
+│       │   └── roe_rds
+│       └── rasters
+│           ├── red_raster_clc_population_14.tif
+│           ├── red_raster_clc_population_17.tif
+│           ├── red_raster_clc_population_21.tif
+│           ├── red_raster_clc_population_3.tif
+│           ├── red_raster_clc_population_8.tif
+│           ├── red_raster_tcd_population_14.tif
+│           ├── red_raster_tcd_population_17.tif
+│           ├── red_raster_tcd_population_21.tif
+│           ├── red_raster_tcd_population_3.tif
+│           ├── red_raster_tcd_population_8.tif
+│           ├── roe_raster_clc_population_1.tif
+│           ├── roe_raster_clc_population_15.tif
+│           ├── roe_raster_clc_population_2.tif
+│           ├── roe_raster_clc_population_25.tif
+│           ├── roe_raster_clc_population_8.tif
+│           ├── roe_raster_tcd_population_1.tif
+│           ├── roe_raster_tcd_population_15.tif
+│           ├── roe_raster_tcd_population_2.tif
+│           ├── roe_raster_tcd_population_25.tif
+│           └── roe_raster_tcd_population_8.tif
+└── results</code></pre>
+<div id="code-directory" class="section level2">
+<h2>code-directory</h2>
+<p>Data preparation and analysis scripts are stored in the code-directory.</p>
+<table>
+<colgroup>
+<col width="28%" />
+<col width="71%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>file(s)/directories</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/code/0_data_preparation.sql">0_data_preparation.sql</a></strong></td>
+<td>SQL-query extracting the raw data from the eurodeer database</td>
+</tr>
+<tr class="even">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/code/0_data_preparation.R">0_data_preparation.R</a></strong></td>
+<td>preparation of gps_data/kde_data: calculation of HRs &amp; intersection of GPS/KDE with TCD/CLC</td>
+</tr>
+<tr class="odd">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/code/1_mismatch_and_modelling.Rmd">1_mismatch_and_modelling.Rmd</a></strong></td>
+<td>CLC/TCD mismatch analysis and statistical modelling of day-night forest use in roe and red deer</td>
+</tr>
+<tr class="even">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/code/2_patchsize.Rmd">2_patchsize.Rmd</a></strong></td>
+<td>patch size analysis</td>
+</tr>
+<tr class="odd">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/code/3_validation_gps.Rmd">3_validation_gps.Rmd</a></strong></td>
+<td>Validation confusion matrices of mismatching GPS location</td>
+</tr>
+<tr class="even">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/code/fncs/">fncs/</a></strong></td>
+<td>functions used in step 1, 2, 3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-directory" class="section level2">
+<h2>data-directory</h2>
+<p>Raw and processed datasets are stored in the data-directory</p>
+<table>
+<colgroup>
+<col width="28%" />
+<col width="71%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>file(s)/directories</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/data/raw/gps/">raw/gps/</a></strong></td>
+<td>RDS; raw gps data of roe and red deer as extracted from the eurodeer database</td>
+</tr>
+<tr class="even">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/data/raw/rasters/">raw/rasters/</a></strong></td>
+<td>TIF; study area extracts of TCD and CLC rasters</td>
+</tr>
+<tr class="odd">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/data/1_mismatch_and_modelling/">1_mismatch_and_modelling/</a></strong></td>
+<td>CSV; absolute and proportion of forest and open habitat calculated for GPS/KDE with TCD/CLC</td>
+</tr>
+<tr class="even">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/data/2_patchsize/">2_patchsize/</a></strong></td>
+<td>CSV; GPS locations with patch sizes</td>
+</tr>
+<tr class="odd">
+<td><strong><a href="https://github.com/EUROMAMMALS/RP016/blob/master/data/3_validation_gps/">3_validation_gps/</a></strong></td>
+<td>CSV; 100 random gps locations per population, validated using a satellite layer as ground truth</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>Salvatori M, De Groeve J, van Loon E, De Baets B, Morellet N, Focardi S, Bonnot NC, Gehr B, Griggio M, Heurich M, Kroeschel M, Licoppe A, Moorcroft PRM, Pedrotti L, Signer J, Van de Weghe N, &amp; Cagnacci F (2022) Day versus night use of forest by red and roe deer as determined by Corine Land Cover and Copernicus Tree Cover Density: assessing use of geographic layers in movement ecology. Landscape Ecology, 37: 1453-1468</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
