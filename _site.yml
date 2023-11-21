@@ -1,6 +1,6 @@
-name: Navigating the wild in R Course
+name: Navigating the Wild in R Course
 navbar:
-  title: "Navigating the wild in R Course"
+  title: "Navigating the Wild in R Course"
   left:
   - text: Lessons
     menu:
