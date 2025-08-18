@@ -66,4 +66,3 @@ lion_lines<- lion_data %>%
   mt_track_lines()
 # 
 
-
