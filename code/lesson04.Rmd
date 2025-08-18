@@ -1,0 +1,72 @@
+---
+title: "3. validation of mismatching locations"
+author: "Johannes De Groeve"
+date: "1/27/2021"
+output: html_document
+---
+
+### packages 
+
+```{r message=FALSE, error=FALSE, warning=FALSE}
+# library(plyr)
+```
+
+### data
+
+Dataset created to validate used locations by roe and red deer. For each of the five roe and red deer population 100 points were compared with a satellite layer (i.e., ground-truth). Hence, in total we did a validation of 500 points per species. For some locations we were not able to determine the ground-truth due to inclarity of the satellite layer. These locations have a missing value (NA) in the column 'satellite'.
+
+* **population**: unique identifier study area as defined in the eurodeer database 
+* **animals_id**: unique identifier of animal as defined in the eurodeer database 
+* **latitude**: latitude of mismatching location (in WGS84) 
+* **longitude**: latitude of mismatching location (in WGS84) 
+* **yearx**: the year of the observation point 
+* **tcd**: 0/1, 1 if the location is identified as forest by tcd, else 0
+* **clc**: 0/1, 1 if the location is identified as forest by clc, else 0
+* **satellite**: 0/1, 1 if the location is identified as forest by the ground-truth layer, else 0
+* **correct**: tcd, if tcd is corresponding to the ground-truth, else clc
+
+```{r message=FALSE, error=FALSE, warning=FALSE}
+# # load data 
+# roe <- read.csv("../data/3_validation_gps/roe.csv",header=T, sep=',') 
+# red <- read.csv("../data/3_validation_gps/red.csv",header=T, sep=',')
+# 
+# # change 0 and 1 to open and forest, respectively  
+# roe[which(roe$tcd==1),]$tcd <- 'forest'
+# roe[which(roe$tcd==0),]$tcd <- 'open'
+# red[which(red$tcd==1),]$tcd <- 'forest'
+# red[which(red$tcd==0),]$tcd <- 'open'
+# roe[which(roe$satellite==1),]$satellite <- 'forest'
+# roe[which(roe$satellite==0),]$satellite <- 'open'
+# red[which(red$satellite==1),]$satellite <- 'forest'
+# red[which(red$satellite==0),]$satellite <- 'open'
+# roe$punto <- NULL
+# red$punto <- NULL
+# 
+# head(roe)
+# nrow(roe)
+# 
+# head(red)
+# nrow(red)
+```
+
+### table 3b: validation of mismatching points 
+
+```{r message=FALSE, error=FALSE, warning=FALSE}
+# ## confusion matrices 
+# 
+# #### roe ####
+# 
+# ### absolute 
+# (roe_t <- table(roe[,c('tcd','satellite')]))
+# ### proportion
+# (roe_p <- prop.table(roe_t))
+# 
+# #### red ####
+# 
+# #### absolute 
+# (red_t <- table(red[,c('tcd','satellite')]))
+# #### proportion 
+# (red_p <- prop.table(red_t))
+```
+
+

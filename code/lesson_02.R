@@ -8,6 +8,7 @@ library(terra)
 library(mapview)
 library(ggplot2)
 library(tidyterra)
+library(sf)
 
 ###YOU CAN WORK WITH SPATIAL DATA AS DATA FRAME 
 ##let's create unprojected spatial data 
