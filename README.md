@@ -20,7 +20,8 @@ knit: (function(input, ...) {
 
 # Navigating-the-Wild-in-R-Course
 
-Materials and lesson plans for course in data processing, wrangling, and visualization for wildlife ecologists, hosted by Dr. Emily Bennitt at University of Botswana's Okavango Research Institute
+Materials and lesson plans for course in data processing, wrangling, and visualization for wildlife ecologists, taught by Dr. K Whitney Hansen and Dr. Johannes DeGroeve. 
+Hosted by Dr. Emily Bennitt at University of Botswana's Okavango Research Institute
 
 * www: [Navigating-the-Wild-in-R](https://WhitneyH1317.github.io/Navigating-the-Wild-in-R-Course/) 
 * repository: [Navigating-the-Wild-in-R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course) 
