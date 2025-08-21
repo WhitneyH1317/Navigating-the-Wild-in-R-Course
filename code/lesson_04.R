@@ -130,7 +130,7 @@ steps
 # let's investigate the burst column. What does this mean?
 steps %>%
   group_by(ID) %>%
-  count(burst_) # it look slike we've got 3 bursts for individual, but the number of fixes per burst varies quite a bit... what's going on here?
+  count(burst_) # it looks like we've got 3 bursts for individual, but the number of fixes per burst varies quite a bit... what's going on here?
 
 steps %>% 
   group_by(ID, burst_) %>%
@@ -170,7 +170,7 @@ steps %>%
   ggtitle("Individual Speeds Day vs. Night")
 
 # ~ # ~ # ~ # Exercise 5 # ~ # ~ # ~ #
-# make a plot like the one above, but looking at individual turning angles at day vs. night\
+# make a plot like the one above, but looking at individual turning angles at day vs. night
 
 # ~ # ~ # ~ # ~ # ~ # ~ # ~ #  ~ # ~ # 
 
@@ -363,6 +363,16 @@ lion_lines<- lion_data %>%
   filter(!(time_lag > set_units(180, "min") | is.na(time_lag) | dist > set_units(20000, "m"))) %>%
   mt_track_lines()
 
+# visualize
+ggplot() +
+  geom_sf(data = ne_countries(country = "Botswana", returnclass = "sf")) +
+  theme_linedraw() +
+  geom_sf(data = lion_lines, aes(color = `individual_local_identifier`)) +
+  coord_sf(
+    crs = crs(lion_data),
+    xlim = c(22.373, 23.958),
+    ylim = c(-21.908, -20.840)
+  )
 
-
+mapview(lion_lines, zcol = "individual_local_identifier")
 
