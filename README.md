@@ -1,27 +1,12 @@
----
-title: "Navigating the wild in R Course"
-output:
-  html_document:
-    css: html-md-01.css
-    fig_caption: no
-    number_sections: no
-    toc: no
-    toc_float: false
-    collapsed: no
-knit: (function(input, ...) {
-    rmarkdown::render(
-      input,
-      output_file = 'index.html',
-      envir = globalenv()
-    )
-  })
----
-
-
 # Navigating-the-Wild-in-R-Course
 
 Materials and lesson plans for course in data processing, wrangling, and visualization for wildlife ecologists, taught by Dr. K Whitney Hansen and Dr. Johannes DeGroeve. 
 Hosted by Dr. Emily Bennitt at University of Botswana's Okavango Research Institute
+
+Lesson 01 was adapted from Dr. Simona Piccardi's data organizational workshop materials (https://github.com/picardis).
+
+Lessons 04 and 05 were adapted from Dr. Brian Smith's movement data workshop materials (https://github.com/bsmity13).
+
 
 * www: [Navigating-the-Wild-in-R](https://WhitneyH1317.github.io/Navigating-the-Wild-in-R-Course/) 
 * repository: [Navigating-the-Wild-in-R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course) 
@@ -32,31 +17,59 @@ The repository contains the following files and directories:
 
 ```
 . 
+├── Navigating-the-Wild-in-R-Course.Rproj
 ├── README.md
-├── RP016.Rproj
 ├── code
-│   ├── lesson01.Rmd
-│   ├── lesson02.Rmd
-│   ├── lesson03.Rmd
-│   ├── lesson04.Rmd
-│   └── fncs
-│       ├── lesson01.R
-│       └── lesson02.R
+│   ├── fun
+│   │   └── bcrw.R
+│   ├── lesson_02.R
+│   ├── lesson_03.R
+│   ├── lesson_04.R
+│   └── lesson_04_pt2
+│       ├── 04_refs.bib
+│       ├── 04a_lecture.html
+│       ├── 04b_walkthrough.R
+│       ├── 04c_exercise.Rmd
+│       ├── 04c_exercise.html
+│       ├── 04d_solution.R
+│       ├── figs
+│       └── pop_vs_ind_h.R
 ├── data
 │   ├── lesson01
-│   │   ├── datasetname.csv
-│   │   └── datasetname.shp
+│   │   └── datasetname.csv
 │   ├── lesson02
+│   │   ├── CA_counties.geojson
+│   │   ├── CA_counties.qmd
+│   │   ├── CA_protected_areas.geojson
+│   │   ├── CA_protected_areas.gpkg
+│   │   ├── CA_protected_areas.qmd
+│   │   ├── CA_roads.geojson
+│   │   ├── CA_roads.qmd
 │   │   ├── datasetname.csv
-│   │   └── datasetname.shp
-│   └── lesson03
-│       ├── gps
-│       │   ├── raw_data01
-│       │   └── raw_data02
-│       └── env
-│           ├── roe_raster_clc_population_15.tif
-│           └── roe_raster_tcd_population_15.tif
-└── results
+│   │   ├── landcover.tif
+│   │   ├── slope.tif
+│   │   └── treecover.tif
+│   ├── lesson03
+│   │   ├── florida_detections.rda
+│   │   └── florida_stack.tif
+│   └── lesson04
+│       ├── fawn_data.rda
+│       ├── texas_move.rda
+│       └── texas_stack.tif
+├── index.html
+├── output
+│   ├── CA_protected_areas_clipped.geojson
+│   ├── CA_roads_clipped.geojson
+│   ├── extracted_raster_values.csv
+│   ├── mypoints.geojson
+│   ├── myraster.tif
+│   ├── myshapefile.geojson
+│   ├── randompoints_bigbasin.csv
+│   ├── raster_stack.tif
+│   ├── slope.tif
+│   ├── species_counts_by_month.jpg
+│   └── top_predator_sites.jpg
+└── repo_tree.txt
 ```
 
 ## code-directory 
@@ -65,10 +78,10 @@ lessons are stored in the code-directory.
 
 |  file(s)/directories                   |   description                                                                                      |
 |:----------------------------------------|:----------------------------------------------------------------------------------------------------|
-| **[lesson01.Rmd](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson01.Rmd)** |      description         |
-| **[lesson02.Rmd](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson02.Rmd)** |      description         | 
-| **[lesson03.Rmd](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson03.Rmd)** |      description         |
-| **[lesson04.Rmd](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson04.Rmd)** |      description         | 
+| **[lesson01.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson01.R)** |      description         |
+| **[lesson02.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson02.R)** |      description         | 
+| **[lesson03.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson03.R)** |      description         |
+| **[lesson04.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson04.R)** |      description         | 
 
 ## data-directory  
 
