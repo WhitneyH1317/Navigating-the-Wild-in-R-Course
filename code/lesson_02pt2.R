@@ -9,6 +9,9 @@ library(ggplot2)
 library(tidyterra)
 library(sf)
 
+# optional configuration for mapview:
+mapviewOptions(basemaps = c("Esri.WorldImagery"))
+
 # let's read in some data from last time
 county_PAs<- st_read("output/county_PAs.geojson")
 clipped_roads<- vect("output/CA_roads_clipped.geojson")
@@ -114,9 +117,13 @@ head(read.csv("output/randompoints_bigbasin.csv"))
 
 #~#~# Exercise 5 #~#~#
 ## randomly sample one point per 4km x 4km grid cell in the largest park in Santa Clara county
+
 # (hint: 1. find the park, 2. create a template, 3. create a grid, 4. sample point)
+
 # plot the result
+
 # add county name and a sequential id
+
 # save the result as a csv
 
 #~#~# #~#~#
@@ -399,7 +406,7 @@ ggplot() +
   geom_spatvector(data=cam_500m_buffer, aes(fill= tree_cover)) +
   viridis::scale_fill_viridis()+
   geom_spatvector(data = camlocs_vec) +
-  ggtitle("Map of Camera Trap Locations")
+  ggtitle("Map of Camera Trap Locations ~ forest cover")
 
 # and if we look at this on a satellite map using plet, we should see the points in the middle indeed have high tree cover...
 mapview(cam_500m_buffer)

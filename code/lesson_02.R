@@ -174,7 +174,10 @@ plot(raster_2,col=c("black","purple"))
 areas<- vect("data/lesson02/CA_protected_areas.gpkg")
 roads<- vect("data/lesson02/CA_roads.geojson")
 # and visualize
-mapview(areas) + mapview(roads) # toggle between map types for a different base layer
+mapview(areas) + mapview(roads) # toggle between map types for a different base layer; and plot multiple items at once using the "+"
+
+# or, if you always want to see satellite first, you can use this:
+mapviewOptions(basemaps = c("Esri.WorldImagery"))
 
 # wow that's all of California! What if we just wanted to look at a smaller area?
 
@@ -244,7 +247,7 @@ plet(clipped_roads) # perfect!
 
 # now clip the "roads" layer using the "p_4326" to crop instead of "p"
 
-# plot the roads, areas_4326, and p_4326 layers all at once using mapview()
+# plot the roads, areas_4326, and p_4326 layers all at once using mapview(), then just roads and p_4326 to see the difference
 
 #~#~# #~#~#
 
@@ -257,9 +260,8 @@ st_is_valid(areas) # this is a good thing to check for spatial data we get onlin
 areas_valid<- st_make_valid(areas) # this can take a little while...
 
 ## if it's taking too long, use the "stop sign" icon on the top left of your console, and load in
-# a "valid" version of this data such as:
-
-# areas_valid<- st_read("data/lesson02/areas_valid.geojson)
+# a "valid" version of data using: 
+# areas_valid<- st_read("data/lesson02/areas_valid.gpkg")
 
 # now let's try cropping using "st_intersection"
 clipped_areas<- st_intersection(areas_valid, p)
@@ -273,8 +275,6 @@ st_write(clipped_roads, "output/CA_roads_clipped.geojson")
 # sometimes it's easy to confuse our spatial data types- we may prefer commands in one package vs. another, and need to switch
 # back and forth between them. We could do one of two things: either make "clipped_roads" an sf object, or write it as 
 # a vector file, such as:
-
-writeVector(clipped_roads, "output/CA_roads_clipped.geojson", overwrite = T) # here's writing it as a vector object directly
 st_write(st_as_sf(clipped_roads), "output/CA_roads_clipped.geojson") # here's making it an sf object
 
   # we add the "overwrite = T" because this layer already exists (we just wrote it!)
@@ -301,6 +301,9 @@ nrow(clipped_areas_split) # better!
 clipped_areas_split$area<- st_area(clipped_areas_split)
   # since this is in meters squared, let's make it kilometers squared so it's easier to understand
 clipped_areas_split$area_km2<- as.numeric(clipped_areas_split$area/1e6)
+
+## note: if we wanted to do this with a spatvector (a terra object), we'd do...
+# expanse(spatVector, unit="km") 
 
 #what if we wanted to display our protected areas as a function of their size?
 ggplot() + 
@@ -355,7 +358,7 @@ counties<- vect("data/lesson02/CA_counties.geojson")
 
 #~#~# Exercise 3 #~#~#
 
-# use commands above, such as "name()", "ext()", etc. to understand what our 'counties' layer is
+# use commands above, such as "names()", "ext()", etc. to understand what our 'counties' layer is
 
 # plot it with clipped_roads and clipped_areas
 
@@ -398,6 +401,7 @@ county_PAs %>%
 
 #~#~# #~#~#
 
-
+# let's save what you've been working on for your next lesson...
+st_write(county_PAs, dsn = "output/county_PAs.geojson")
 
 
