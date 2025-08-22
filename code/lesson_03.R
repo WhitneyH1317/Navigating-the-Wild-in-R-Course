@@ -3,7 +3,7 @@
 # ---- DAY 3: BASIC DATA CLEANING OPERATIONS IN R ----
 rm(list = ls()) # clear out any existing data taking up room in your working environment
 
-# install.packages(c("activity", "overlap", "stringr", "viridis"))
+# install.packages(c("stringr", "viridis"))
 
 # load libraries
 library(dplyr)
@@ -11,8 +11,6 @@ library(tidyverse)
 library(lubridate)
 library(viridis)
 library(sf)
-library(activity)
-library(overlap)
 library(terra)
 library(stringr)
 
@@ -151,20 +149,14 @@ head(top_predators) # and we can already see a bear and a panther represented he
 ### Exercise 3 ###
 # create a small dataframe that only contains observations of "panther" 
 # hint: you'll need to filter by TWO restrictions; use the "&"
-panthers<- raw_cam_data %>% 
-  filter(grepl("panther", keywords) & month(datetime) == 7) %>% 
-  arrange(camID, datetime)
 
 # now create a small dataframe that only contains observations of "deer" that
 # do NOT occur in June
-deer_not_june<- raw_cam_data %>%
-  filter(grepl("deer", keywords) & month(datetime) != 6)
 
 # test to make sure you have no rows that have a datetime occurring in june using "distinct"
-deer_not_june %>%
-  distinct(month(datetime))
 
 #~#~# #~#~##~#~# 
+
 
 # okay, now I don't know about you, but working with this keywords column is getting
 # slightly cumbersome. Let's make it into a proper set of columns that we can use to
@@ -211,12 +203,13 @@ raw_cam_data %>%
 
 ### Exercise 4 ###
 # what unique "keys" do we have in our dataset? 
-detections %>%
-  distinct(key)
+
+
 # filter our dataframe to only include rows with key = "sp" (species) so we can 
 # start to analyze our detection observations
-detections<- detections %>%
-  filter(key == "sp")
+
+
+######## ############
 
 # now that we know we're just looking at a dataframe of observations of species, 
 # at a specific camera, at a specific time, we don't really need our keywords column
@@ -242,13 +235,8 @@ species_counts_broken <- detections %>%
   filter(year == 2022) %>%              # we only have data from 2015!
   rename(camera = camid)          # the "old" column is camID, not camid
   
-species_counts_fixed <- detections %>% # exercise answer
-  filter(species != "human") %>%
-  mutate(year = year(datetime)) %>%
-  rename(camera = camID)     
+# species_counts_fixed <- ?? 
   
-species_counts_fixed 
-
 ####################
 
 
@@ -285,11 +273,8 @@ species_counts %>%
 # create a dataset of species-specific counts by month
 # hint: use "mutate" to create a new column that designates the month 
 # hint #2: you can use "group_by" on multiple columns! s
-species_counts_by_month<- detections %>%
-  mutate(month = month(datetime)) %>%
-  group_by(species, month) %>% 
-  count() 
-species_counts_by_month
+
+
 #################
 
 # here's some basic ggplot code you can use for exploratory plots
@@ -321,7 +306,7 @@ species_counts_by_month<- species_counts_by_month %>%
               
     ) 
 
-plot1<- species_counts_by_month %>%
+plot1<- species_counts_by_month %>% # now, we are storing this into an object- can be useful when you're creating a figure with multiple figures in it
   ggplot(aes(x = reorder(species, -n), y = n, fill = species)) + #let's sort our species from 
                 # most observed to least observed (if you left out the '-n', it'd be from least to most observed)
   geom_bar(stat = "identity", width = 0.7, color = "black", linewidth = 0.2) + # let's set the width and outline color of our bars
@@ -341,7 +326,7 @@ plot1<- species_counts_by_month %>%
     panel.grid.minor = element_blank()
   ) 
 
-plot1
+plot1 # now just call the stored object to view
 
 # wow, so pretty! Let's save it
 ggsave(
@@ -427,7 +412,7 @@ detections %>%
     panel.grid.minor = element_blank()
   ) 
 
-# we did all that spatial work yesterday, maybe we want to plot where animals are occuring in space!
+# we did all that spatial work yesterday, maybe we want to plot where animals are occurring in space!
 # But where are the cameras located?
 
 # let's look at our "cam_locs" dataframe:
@@ -441,6 +426,11 @@ detections_locs<- detections %>%
   # our data cam_locs (joining to the "left") using the column "camID" as a key to match
   # rows to each other
   left_join(., cam_locs, by = "camID")
+
+## notice here: yesterday with did "spatial joins" via extract; we could put data together by figuring out where
+# our data occurred in space relative to each other. Here, we are joining based on keyed information- in this dataset, 
+# the camera ID number. Even though there is spatial data involved, this is NOT a spatial join
+
 head(detections_locs) # now our camera points have a geometry column! And a trail column!
 
 
@@ -473,8 +463,9 @@ top_10 # and there's no Groups that you can see!
 
 # what is the range of predator observations? 
 pred_freq<- detections_locs %>%
-  group_by(trophic_group) %>%
+  filter(trophic_group == "predator") %>%
   count(camID) %>%
+  arrange(camID) %>%
   ungroup() %>% # notice here: we ungroup before we apply the next set of functions
   rename(predator_observations = n) 
 summary(pred_freq$predator_observations)
@@ -482,7 +473,7 @@ summary(pred_freq$predator_observations)
 
 # we'll plot all cameras, but color code them by # of predator observations
 pred_freq %>%
-  filter(predator_observations > 65.24) %>%
+  filter(predator_observations > 23) %>%
   left_join(., cam_locs, by = "camID") %>%
   st_as_sf(.) %>%
   ggplot(.) +
@@ -502,7 +493,7 @@ pred_freq %>%
 ggsave("output/top_predator_sites.jpg", plot = last_plot(), width = 8, height = 10, dpi = 500)
 
 
-#### Exercise 8 ####
+#### Exercise 7 ####
 
 # create a spatial plot of top cameras with prey observations that are less than the 
 # mean number of prey observations per camera
