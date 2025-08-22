@@ -2,7 +2,7 @@
 
 # ---- DAY 4: ANIMAL MOVEMENT DATA  ----
 rm(list = ls()) # clear out any existing data taking up room in your working environment
-#install.packages(c("units", "rnaturlaearth", "move2", "devtools")
+#install.packages(c("units", "rnaturlaearth", "move2", "devtools", "amt")
 
 # load libraries
 library(terra)
