@@ -3,11 +3,14 @@
 #-------------------Code Walkthrough-------------------X
 #######################################################X
 
+# workshop adapted from Brian Smith
+
 # Load packages ----
 #install.packages("CircStats")
 library(tidyverse)
 library(terra)
 library(amt)
+library(CircStats)
 
 # Generate example data ----
 # We need to generate some location data with home-ranging behavior for
@@ -389,4 +392,65 @@ bind_rows(hr_isopleths(mcps) %>%
 sf::st_intersection(hr_isopleths(mcps)[1,], 
                     hr_isopleths(a04_mcps)[1,]) %>% 
   sf::st_area()
+
+
+# When fitting KDE home ranges:
+# What's the difference between using a single bandwidth for the population
+# or estimating a separate one for each individual?
+
+# Use the fisher data and calculate the reference bandwidth for each individual
+dat <- amt_fisher %>%  # this is a dataset that is loaded already into the amt library, so we can practice on it! 
+  nest(data = -name) %>% 
+  mutate(bw = map_dbl(data, ~ hr_kde_ref(.x)[1]))
+
+# What's the population-level mean bandwidth?
+mean_bw <- mean(dat$bw)
+
+# Fit KDEs with each bandwidth
+kdes <- dat %>% 
+  mutate(kde_ind = map2(data, bw, ~ hr_kde(.x, h = .y)),
+         kde_pop = map(data, ~ hr_kde(.x, h = mean_bw))) %>% 
+  dplyr::select(name, bw, kde_ind, kde_pop) %>% 
+  # Pivot longer
+  pivot_longer(cols = kde_ind:kde_pop,
+               names_to = "type", 
+               values_to = "kde") %>% 
+  # Get polygons
+  mutate(poly = map(kde, hr_isopleths)) %>% 
+  # Unnest
+  unnest(poly)
+
+# Plot to compare
+ggplot(kdes, aes(geometry = geometry)) +
+  facet_grid(name ~ type) +
+  geom_sf()
+
+
+###### EXERCISE #######
+# We encourage you to use your own data for this exercise. We will be available while you are working to answer any questions.
+
+# If you don't have your own data, you can use example data built into `amt`. You can access the fisher data like this:
+
+# Location data as 'track_xyt'
+dat <- amt_fisher
+
+# You likely have more than one individual in your own data, and `amt_fisher` also has 4 individuals. 
+# We will cover multiple instances in the next module. If you want to try to handle multiple individuals, please do! 
+# But you might want to master the home range concepts using just a single individual.
+# 
+# ## Instructions
+# 
+# 1. Load in your data or the `amt_fisher` dataset. If you're working with your own data, format it as a `track_xyt` object 
+  # using `amt::make_track()`.
+#   
+# 2. Fit a home range of your choice for this individual (feel free to fit more than one home range type). Fit at least two
+  # isopleths per home range, *e.g.*, 95% and 50%. 
+#     
+# 3. Compute the area of each home range polygon. Convert the area to reasonable units for your study animal, such as ha or 
+  # km^2^.
+#   
+# 4. Make a map with that individual's home range. If you are trying with multiple individuals, it's up to you whether you 
+  # want all your individuals on a single map or one map per individual.
+
+########################
 
