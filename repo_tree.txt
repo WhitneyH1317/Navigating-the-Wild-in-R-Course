@@ -1,0 +1,55 @@
+.
+├── CITATION.cff
+├── Navigating-the-Wild-in-R-Course.Rproj
+├── README.md
+├── code
+│   ├── fun
+│   │   └── bcrw.R
+│   ├── lesson_02.R
+│   ├── lesson_03.R
+│   ├── lesson_04.R
+│   └── lesson_04_pt2
+│       ├── 04_refs.bib
+│       ├── 04a_lecture.html
+│       ├── 04b_walkthrough.R
+│       ├── 04c_exercise.Rmd
+│       ├── 04c_exercise.html
+│       ├── 04d_solution.R
+│       ├── figs
+│       └── pop_vs_ind_h.R
+├── data
+│   ├── lesson01
+│   │   └── datasetname.csv
+│   ├── lesson02
+│   │   ├── CA_counties.geojson
+│   │   ├── CA_counties.qmd
+│   │   ├── CA_protected_areas.geojson
+│   │   ├── CA_protected_areas.gpkg
+│   │   ├── CA_protected_areas.qmd
+│   │   ├── CA_roads.geojson
+│   │   ├── CA_roads.qmd
+│   │   ├── datasetname.csv
+│   │   ├── landcover.tif
+│   │   ├── slope.tif
+│   │   └── treecover.tif
+│   ├── lesson03
+│   │   ├── florida_detections.rda
+│   │   └── florida_stack.tif
+│   └── lesson04
+│       ├── fawn_data.rda
+│       ├── texas_move.rda
+│       └── texas_stack.tif
+├── index.html
+├── output
+│   ├── CA_protected_areas_clipped.geojson
+│   ├── CA_roads_clipped.geojson
+│   ├── extracted_raster_values.csv
+│   ├── mypoints.geojson
+│   ├── myraster.tif
+│   ├── myshapefile.geojson
+│   ├── randompoints_bigbasin.csv
+│   ├── raster_stack.tif
+│   ├── slope.tif
+│   ├── species_counts_by_month.jpg
+│   └── top_predator_sites.jpg
+└── repo_tree.txt
