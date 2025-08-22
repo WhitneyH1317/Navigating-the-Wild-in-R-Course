@@ -106,7 +106,5 @@ Raw and processed datasets are stored in the data-directory. Datasets are descri
 | **[texas_move.rda](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson04/texas_move.rda)** | Lesson 4 data: RDA file of fawn mortality data |
 | **[texas_stack.tif](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson04/texas_stack.tif)** | Lesson 4 data: Stack of raster layers combining landcover types in Texas study site |
 
-# References 
-
 
 
