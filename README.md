@@ -19,21 +19,24 @@ The repository contains the following files and directories:
 . 
 ├── Navigating-the-Wild-in-R-Course.Rproj
 ├── README.md
+├── additional_materials
+│   ├── 04_pt2_lecture.html
+│   └── 04_refs.bib
 ├── code
+│   ├── lesson_02.R
+│   ├── lesson_02pt2.R
+│   ├── lesson_03.R
+│   ├── lesson_03pt2.R
+│   ├── lesson_04.R
+│   └── lesson_04pt2.R
+├── exercise_solutions
+│   │   ├── 02_solutions.R
+│   │   ├── 02_pt2_solutions.R
+│   │   ├── 03_solutions.R
+│   │   ├── 04_solutions.R
+│   │   └── 04_pt2_solutions.R
 │   ├── fun
 │   │   └── bcrw.R
-│   ├── lesson_02.R
-│   ├── lesson_03.R
-│   ├── lesson_04.R
-│   └── lesson_04_pt2
-│       ├── 04_refs.bib
-│       ├── 04a_lecture.html
-│       ├── 04b_walkthrough.R
-│       ├── 04c_exercise.Rmd
-│       ├── 04c_exercise.html
-│       ├── 04d_solution.R
-│       ├── figs
-│       └── pop_vs_ind_h.R
 ├── data
 │   ├── lesson01
 │   │   └── datasetname.csv
@@ -45,7 +48,7 @@ The repository contains the following files and directories:
 │   │   ├── CA_protected_areas.qmd
 │   │   ├── CA_roads.geojson
 │   │   ├── CA_roads.qmd
-│   │   ├── datasetname.csv
+│   │   ├── areas_valid.gpkg
 │   │   ├── landcover.tif
 │   │   ├── slope.tif
 │   │   └── treecover.tif
@@ -60,11 +63,14 @@ The repository contains the following files and directories:
 ├── output
 │   ├── CA_protected_areas_clipped.geojson
 │   ├── CA_roads_clipped.geojson
+│   ├── county_PAs.geojson
 │   ├── extracted_raster_values.csv
+│   ├── low_prey_sites.jpg
 │   ├── mypoints.geojson
 │   ├── myraster.tif
 │   ├── myshapefile.geojson
 │   ├── randompoints_bigbasin.csv
+│   ├── randompoints_santaclara.csv
 │   ├── raster_stack.tif
 │   ├── slope.tif
 │   ├── species_counts_by_month.jpg
