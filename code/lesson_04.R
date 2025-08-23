@@ -18,9 +18,9 @@ load("data/lesson04/texas_move.rda") #.rda files are a nice way to save multiple
     # let's look at our "Environment" and see what's there- you should see 2 items
 
 # 1) a movement dataframe
-head(deer)
+(deer)
 # 2) a roads layer
-mapview(roads)
+(roads)
   # these are roads across 4 different properties
 
 # now let's load one more dataset
@@ -32,6 +32,9 @@ stack
 # investigate your spatial data
 
 # make your roads layer into a dist-to-roads raster!
+# hint: check the crs of all spatial data
+
+# add it to your raster stack
 
 # ~ # ~ # ~ # ~ # ~ # ~ # ~ #  ~ # ~ # 
 
@@ -47,12 +50,11 @@ deer %>%
 deer %>%
   ggplot(., aes(x = timestamp, y = ID, color = ID)) +
   geom_point() # looks like most deer have data for 2021, and a handful for 2023
-    # so let's focus on data from 2021
-deer<- deer %>%
-  filter(year(timestamp) == 2021) 
 
 # ~ # ~ # ~ # Exercise 2 # ~ # ~ # ~ #
-# how many individual deer have data in 2021?
+# make your "deer" dataframe include data JUST from deer collared in 2021
+
+# how many individual deer have data in 2021? 
 
 # can you make a plot of start/end times for just the 2021 deer?
 
@@ -100,17 +102,12 @@ smpld %>% # what if we wanted to upsample our data, for a fix every hour?
   ) # see how there are fewer fixes if we downsample our data?
 
 # ~ # ~ # ~ # Exercise 3 # ~ # ~ # ~ #
-# try making a new column with 3-hour sampled data, and compare number of fixes
+# try making a dataframe with a column containing 3-hour sampled data. Store it in an object called "smpld"
 
 # ~ # ~ # ~ # ~ # ~ # ~ # ~ #  ~ # ~ # 
 
-# now let's create an object with regularized movement data for every 3 hours
-smpld<- tracks %>%
-  nest(track = -"ID") %>% # what this looks like is we "nest" our track data based on animal ID
-  arrange(ID) %>%
-  mutate( 
-    smpl = map(track, ~ track_resample(., rate = minutes(180), tolerance = minutes(5), .keep_all = T))
-  )
+# now let's investigate regularized movement data at a 3 hour fix rate
+head(smpld)
 
 # and what if we want to investigate step by step movement? We can make something called a "steps_by_burst" object
 ?steps_by_burst
@@ -148,12 +145,6 @@ steps %>%
 
 # ~ # ~ # ~ # Exercise 4 # ~ # ~ # ~ #
 # make a plot like the one above, but looking at individual turning angles
-# steps %>%
-#   ggplot(., aes(x = ta_, fill = ID)) +
-#   geom_density(alpha = 0.4) +
-#   labs(x = "Turning Angle (radians)", y = "Density") +
-#   theme_minimal() +
-#   ggtitle("Turning Angle Distributions by Individual")
 
 # ~ # ~ # ~ # ~ # ~ # ~ # ~ #  ~ # ~ # 
 
@@ -168,11 +159,6 @@ steps %>%
   labs(x = "Speed (meters/minute)", y = "Density") +
   theme_minimal() +
   ggtitle("Individual Speeds Day vs. Night")
-
-# ~ # ~ # ~ # Exercise 5 # ~ # ~ # ~ #
-# make a plot like the one above, but looking at individual turning angles at day vs. night
-
-# ~ # ~ # ~ # ~ # ~ # ~ # ~ #  ~ # ~ # 
 
 # what if we wanted to explore a bit more about our individuals?
 (ind_info <- deer %>%
@@ -281,10 +267,10 @@ steps_mort %>%
   ggtitle("Individual Speeds Day vs. Night")
   # what are you seeing here? 
   
-# ~ # ~ # ~ # Exercise 6 # ~ # ~ # ~ #
+# ~ # ~ # ~ # Exercise 5 # ~ # ~ # ~ #
 # investigate, either thru a plot or a summary statistic, 
 # the difference in movement behavior (step length or turning angle)
-# based on an individual's fawn status and their body length
+# based on an individual's fawn status and their age
 
 
 # ~ # ~ # ~ # ~ # ~ # ~ # ~ #  ~ # ~ # 
