@@ -7,7 +7,7 @@ Lesson 01 can be found [here](https://rprogramming-7718dc.gitlab.io/modules/data
 
 Part of the material for Lesson 01 has been adapted from Dr. Simona Piccardi's data organizational workshop materials (https://github.com/picardis).
 
-Lessons 04 and 05 were adapted from Dr. Brian Smith's movement data workshop materials (https://github.com/bsmity13).
+Lessons 04 part 2 and 05 were adapted from Dr. Brian Smith's movement data workshop materials (https://github.com/bsmity13).
 
 
 * www: [Navigating-the-Wild-in-R](https://WhitneyH1317.github.io/Navigating-the-Wild-in-R-Course/) 
