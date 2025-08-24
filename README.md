@@ -3,7 +3,9 @@
 Materials and lesson plans for course in data processing, wrangling, and visualization for wildlife ecologists, taught by Dr. K Whitney Hansen and Dr. Johannes DeGroeve. 
 Hosted by Dr. Emily Bennitt at University of Botswana's Okavango Research Institute
 
-Lesson 01 was adapted from Dr. Simona Piccardi's data organizational workshop materials (https://github.com/picardis).
+Lesson 01 can be found [here](https://rprogramming-7718dc.gitlab.io/modules/data_management/data_management.html). 
+
+Part of the material for Lesson 01 has been adapted from Dr. Simona Piccardi's data organizational workshop materials (https://github.com/picardis).
 
 Lessons 04 and 05 were adapted from Dr. Brian Smith's movement data workshop materials (https://github.com/bsmity13).
 
