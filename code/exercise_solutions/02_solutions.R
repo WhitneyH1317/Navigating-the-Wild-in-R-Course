@@ -64,7 +64,6 @@ counties_utm$area<- expanse(counties_utm, unit = "km")
 ## alternatively, can do...
 counties_utm_sf<- st_as_sf(counties_utm)
 counties_utm_sf$area<- st_area(counties_utm_sf)/1e6 #to convert meters directly to km squared
-
 #~#~# #~#~#
 
 
