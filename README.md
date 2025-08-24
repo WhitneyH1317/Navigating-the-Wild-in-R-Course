@@ -18,30 +18,36 @@ Lessons 04 and 05 were adapted from Dr. Brian Smith's movement data workshop mat
 The repository contains the following files and directories:
 
 ```
-. 
 ├── Navigating-the-Wild-in-R-Course.Rproj
 ├── README.md
 ├── additional_materials
+│   ├── 01_sim_data.R
+│   ├── 01_sim_habitat.R
+│   ├── 02_sim_data.R
 │   ├── 04_pt2_lecture.html
-│   └── 04_refs.bib
+│   ├── 04_refs.bib
+│   ├── HSF_exercise.html
+│   └── ICTWS 2025 Workshop.pptx
 ├── code
 │   ├── lesson_02.R
 │   ├── lesson_02pt2.R
 │   ├── lesson_03.R
 │   ├── lesson_03pt2.R
 │   ├── lesson_04.R
-│   └── lesson_04pt2.R
-├── exercise_solutions
+│   ├── lesson_04pt2.R
+│   ├── lesson_05.R
+│   └── lesson_05pt2.R
+│   ├── exercise_solutions
 │   │   ├── 02_solutions.R
 │   │   ├── 02_pt2_solutions.R
 │   │   ├── 03_solutions.R
 │   │   ├── 04_solutions.R
-│   │   └── 04_pt2_solutions.R
+│   │   ├── 04_pt2_solutions.R
+│   │   └── 05_HSF_solution.R
 │   ├── fun
-│   │   └── bcrw.R
+│   │   ├── bcrw.R
+│   │   └── reclass_landuse.R
 ├── data
-│   ├── lesson01
-│   │   └── datasetname.csv
 │   ├── lesson02
 │   │   ├── CA_counties.geojson
 │   │   ├── CA_counties.qmd
@@ -57,10 +63,14 @@ The repository contains the following files and directories:
 │   ├── lesson03
 │   │   ├── florida_detections.rda
 │   │   └── florida_stack.tif
-│   └── lesson04
-│       ├── fawn_data.rda
-│       ├── texas_move.rda
-│       └── texas_stack.tif
+│   ├── lesson04
+│   │   ├── fawn_data.rda
+│   │   ├── texas_move.rda
+│   │   └── texas_stack.tif
+│   └── lesson05
+│       ├── habitat.tif
+│       ├── sim_gps_hsf.csv
+│       └── sim_gps_ssf.csv
 ├── index.html
 ├── output
 │   ├── CA_protected_areas_clipped.geojson
@@ -76,8 +86,10 @@ The repository contains the following files and directories:
 │   ├── raster_stack.tif
 │   ├── slope.tif
 │   ├── species_counts_by_month.jpg
+│   ├── species_detections.rda
 │   └── top_predator_sites.jpg
-└── repo_tree.txt
+├── repo_tree.txt
+
 ```
 
 ## code-directory 
@@ -86,10 +98,17 @@ lessons are stored in the code-directory.
 
 | File(s)/Directories | Description |
 |:--------------------|:------------|
-| **[bcrw.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/fun/bcrw.R)** | Function for Lesson 04 |
-| **[lesson_02.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_02.R)** | Lesson file: basic spatial operations in R |
-| **[lesson_03.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_03.R)** | Lesson file: using tidyverse and wrangling detection data in R |
-| **[lesson_04.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_04.R)** | Lesson file: Processing movement data in R |
+| **[bcrw.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/fun/bcrw.R)** | function for Lesson 04 |
+| **[reclass_landuse.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/fun/reclass_landuse.R)** | function for Lesson 05 |
+| **[lesson_02.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_02.R)** | Lesson file: basic spatial operations (basic spatial data types, vector operations |
+| **[lesson_02pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_02pt2.R)** | Lesson file: basic spatial operations part 2 (sampling points, raster wrangling) |
+| **[lesson_03.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_03.R)** | Lesson file: using tidyverse and wrangling detection data |
+| **[lesson_03pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_03pt2.R)** | Lesson file: investigating species activity patterns |
+| **[lesson_04.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_04.R)** | Lesson file: processing movement data |
+| **[lesson_04pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_04pt2.R)** | Lesson file: understanding and plotting homeranges |
+| **[lesson_05.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_05.R)** | Lesson file: testing habitat selection functions using simulated data |
+| **[lesson_05pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_05pt2.R)** | Lesson file: testing step selection functions using simulated data |
+
 
 ## data-directory  
 
@@ -97,7 +116,6 @@ Raw and processed datasets are stored in the data-directory. Datasets are descri
 
 | File(s)/Directories | Description |
 |:---------------------|:------------|
-| **[datasetname.csv](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson01/datasetname.csv)** | Lesson 1 placeholder data |
 | **[CA_counties.geojson](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson02/CA_counties.geojson)** | Lesson 2 data: County designation for California |
 | **[CA_counties.qmd](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson02/CA_counties.qmd)** | Lesson 2 data: qmd |
 | **[CA_protected_areas.geojson](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson02/CA_protected_areas.geojson)** | Lesson 2 data: Protected area designation for California (geojson version) |
@@ -113,6 +131,9 @@ Raw and processed datasets are stored in the data-directory. Datasets are descri
 | **[fawn_data.rda](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson04/fawn_data.rda)** | Lesson 4 data: RDA file combining deer movement data from South Texas and a spatial features of roads across study sites |
 | **[texas_move.rda](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson04/texas_move.rda)** | Lesson 4 data: RDA file of fawn mortality data |
 | **[texas_stack.tif](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson04/texas_stack.tif)** | Lesson 4 data: Stack of raster layers combining landcover types in Texas study site |
+| **[habitat.tif](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson05/habitat.tif)** | Lesson 05 data: simulated habitat data |
+| **[sim_gps_hsf.csv](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson05/sim_gps_hsf.csv)** | Lesson 05 data: simulated movement data for HSF |
+| **[sim_gps_ssf.csv](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/data/lesson05/sim_gps_ssf.csv)** | Lesson 05 data: simulated movement data for SSF |
 
 
 
