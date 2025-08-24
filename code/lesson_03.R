@@ -3,7 +3,7 @@
 # ---- DAY 3: BASIC DATA CLEANING OPERATIONS IN R ----
 rm(list = ls()) # clear out any existing data taking up room in your working environment
 
-# install.packages(c("stringr", "viridis"))
+# install.packages(c("tidyverse", "dplyr", "stringr", "viridis", "plotly"))
 
 # load libraries
 library(dplyr)
@@ -13,6 +13,7 @@ library(viridis)
 library(sf)
 library(terra)
 library(stringr)
+library(plotly)
 
 # let's work with some detection data
 # we're going to use a new type of data object called an ".rda" object- .rda objects save all sorts of stuff into an R working environment,
@@ -108,7 +109,7 @@ grepl("deer", raw_cam_data$keywords[1:10])
 # The "!" is a very useful addition to your coding language- you can use it
 # to find all "non-NA" values such as ' !is.na(df$column)' or to filter out 
 # observations that are NOT in a certain month and are NOT of a certain species (for instance).
-# We can even try to find all values that 'do not equal' 10 by using, 'df$column != x'
+# We can even try to find all values that 'do not equal' 10 by using, 'values != x'
 
 ### Exercise2 ###
 # what rows (from 1 to 10 of the dataframe) contain bear observations?
@@ -168,10 +169,12 @@ detections<- raw_cam_data %>% # first we're creating a new object to store our d
    # We'll create two new columns that specify what the "key" is, and what the "value" is 
   mutate(
     key = ifelse(str_detect(keywords, "="), 
-                 str_extract(keywords, "^[^=]+"), "tag"),
+                 str_extract(keywords, "^[^=]+"), "tag"), #matches one or more characters from the start of the string, up to but not including the first equals sign
     value = ifelse(str_detect(keywords, "="),
-                   str_extract(keywords, "(?<=\\=).*"), keywords)
+                   str_extract(keywords, "(?<=\\=).*"), keywords) #you want everything after (but not including) the =
   ) 
+# don't know the characters in this regular expression? Me neither! Use chatgpt or perplexity! For example, ask: "how do I extract everything before the "equal" sign this character string?" 
+
 head(detections)
 
 # now what if you want to know what's going on in your piping, or you have an error?
@@ -206,7 +209,7 @@ raw_cam_data %>%
 
 
 # filter our dataframe to only include rows with key = "sp" (species) so we can 
-# start to analyze our detection observations
+# start to analyze our detection observations. Name the new object "detections" 
 
 
 ######## ############
@@ -433,6 +436,8 @@ detections_locs<- detections %>%
 
 head(detections_locs) # now our camera points have a geometry column! And a trail column!
 
+# let's save this for later
+save(detections_locs, file = "output/species_detections.rda")
 
 # let's find the 10 cameras with the most predator observations
 top_10<- detections_locs %>%
@@ -472,7 +477,25 @@ summary(pred_freq$predator_observations)
 # let's make a spatial heatmap of all cameras that have at least 65 observations of a predator
 
 # we'll plot all cameras, but color code them by # of predator observations
-pred_freq %>%
+(pred_freq_plot<- pred_freq %>%
+  filter(predator_observations > 23) %>%
+  left_join(., cam_locs, by = "camID") %>%
+  st_as_sf(.) %>%
+  ggplot(.) +
+  annotation_map_tile(type = "osm", zoom = 11) +      # adds OSM basemap
+  geom_sf(aes(color = predator_observations), size = 3) +
+  scale_color_viridis_c(option = "inferno", name = "Predator Observations") +
+  theme_minimal() +
+  labs(title = "Predator Occurrence at Camera Locations",
+       subtitle = "Top locations by number of observations > mean",
+       caption = "Data: Camera trap detections") +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    legend.position = "right"
+  ) )
+
+# let's make it interactive...
+p<- pred_freq %>%
   filter(predator_observations > 23) %>%
   left_join(., cam_locs, by = "camID") %>%
   st_as_sf(.) %>%
@@ -489,8 +512,12 @@ pred_freq %>%
   ) + 
   theme(aspect.ratio = 0.6)  # or a taller ratio
 
+# now plot it on an interactive map
+ggplotly(p = p) 
+  # this maybe isn't as nice as MapView, since we can't have a satellite background, but still useful to know
+
 # let's save it!
-ggsave("output/top_predator_sites.jpg", plot = last_plot(), width = 8, height = 10, dpi = 500)
+ggsave("output/top_predator_sites.jpg", plot = pred_freq_plot, width = 8, height = 10, dpi = 500)
 
 
 #### Exercise 7 ####

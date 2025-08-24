@@ -158,7 +158,7 @@ steps %>%
   facet_wrap(~time_of_day) +
   labs(x = "Speed (meters/minute)", y = "Density") +
   theme_minimal() +
-  ggtitle("Individual Speeds Day vs. Night")
+  ggtitle("Average Speeds Day vs. Night")
 
 # what if we wanted to explore a bit more about our individuals?
 (ind_info <- deer %>%
@@ -188,7 +188,8 @@ steps_info %>%
 steps_info<- steps_info %>%
   mutate(age_simp = ifelse(EstAge >= 6, "old", "young"))
     # now we've made a simplified column that tells us if the deer is old or young
-  # let's plot again
+
+  # let's plot again 
 steps_info %>%
   mutate(time_of_day = ifelse( (hour(t2_) > 19 | hour(t2_) < 6), "night", "day")) %>%
   group_by(ID, time_of_day, age_simp) %>%
@@ -254,6 +255,10 @@ steps_mort %>%
 
 steps_mort<- steps_mort %>% filter(!is.na(fawn_status))
 
+# what's a good way to make sure you don't have NA's in your data?
+any(is.na(steps_mort$fawn_status))
+  # this should say FALSE if we did the last step correctly...
+
 # let's investgiate movement behavior relative to fawn status
 steps_mort %>%
   mutate(time_of_day = ifelse( (hour(t2_) > 19 | hour(t2_) < 6), "night", "day")) %>%
@@ -269,8 +274,8 @@ steps_mort %>%
   
 # ~ # ~ # ~ # Exercise 5 # ~ # ~ # ~ #
 # investigate, either thru a plot or a summary statistic, 
-# the difference in movement behavior (step length or turning angle)
-# based on an individual's fawn status and their age
+  # the difference in movement behavior (step length or turning angle)
+  # based on an individual's fawn status and their age
 
 
 # ~ # ~ # ~ # ~ # ~ # ~ # ~ #  ~ # ~ # 

@@ -261,7 +261,7 @@ areas_valid<- st_make_valid(areas) # this can take a little while...
 
 ## if it's taking too long, use the "stop sign" icon on the top left of your console, and load in
 # a "valid" version of data using: 
-# areas_valid<- st_read("data/lesson02/areas_valid.gpkg")
+#areas_valid<- st_read("data/lesson02/areas_valid.gpkg")
 
 # now let's try cropping using "st_intersection"
 clipped_areas<- st_intersection(areas_valid, p)
@@ -370,7 +370,7 @@ counties<- vect("data/lesson02/CA_counties.geojson")
 
 # now let's try understanding what our data looks like across counties...
 clipped_areas<- st_as_sf(clipped_areas)
-counties_utm<- st_as_sf(counties_utm)
+counties_utm_sf<- st_as_sf(counties_utm)
 
 county_PAs<- st_intersection(clipped_areas_split, counties_utm)
 # take a look at this object...

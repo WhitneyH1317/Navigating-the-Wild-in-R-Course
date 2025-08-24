@@ -2,7 +2,7 @@
 # ---- DAY 2: SLIGHTLY MORE ADVANCED SPATIAL OPERATIONS IN R ----
 rm(list = ls()) # clear out any existing data taking up room in your working environment
 
-#install.packages(c("terra", "mapview", "dplyr", "sf", "ggplot2", "tidyterra")) # install these packages if you don't already have them
+# load libraries
 library(terra)
 library(mapview)
 library(ggplot2)
@@ -11,6 +11,7 @@ library(sf)
 
 # optional configuration for mapview:
 mapviewOptions(basemaps = c("Esri.WorldImagery"))
+# this way, every time you pull up mapview plots, it'll have the satellite background
 
 # let's read in some data from last time
 county_PAs<- st_read("output/county_PAs.geojson")
@@ -310,7 +311,8 @@ reclass_matrix <- as.matrix(iclus_key[, c("code", "landcover_simp")])
 lc_reclass <- classify(lc_crop, reclass_matrix)
 
 #let's see what it looks like now!
-plot(lc_reclass)
+plot(lc_crop) # see how the values go from 0 to 15+?
+plot(lc_reclass) # now it's just 1 and 2, based on our reclassification matrix
 
 #### ---- BUILDING DISTANCE LAYERS ---- ####
 

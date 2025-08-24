@@ -313,6 +313,8 @@ ggplot() +
 # Without going into detail on the different CTMMs, we'll demonstrate fitting
 # an aKDE with an Ornstein-Uhlenbeck model.
 akdes <- hr_akde(a01, model = fit_ctmm(a01, "ou"), levels = 0.95)
+  # if you get an error here, run: 
+  # install.packages("RSpectra")
 
 # Examine the object
 class(akdes)
