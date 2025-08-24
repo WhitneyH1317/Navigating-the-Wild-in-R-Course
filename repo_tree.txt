@@ -3,23 +3,32 @@
 ├── Navigating-the-Wild-in-R-Course.Rproj
 ├── README.md
 ├── additional_materials
+│   ├── 01_sim_data.R
+│   ├── 01_sim_habitat.R
+│   ├── 02_sim_data.R
 │   ├── 04_pt2_lecture.html
-│   └── 04_refs.bib
+│   ├── 04_refs.bib
+│   ├── HSF_exercise.html
+│   └── ICTWS 2025 Workshop.pptx
 ├── code
 │   ├── exercise_solutions
-│   │   ├── 02_solutions.R
 │   │   ├── 02_pt2_solutions.R
+│   │   ├── 02_solutions.R
 │   │   ├── 03_solutions.R
+│   │   ├── 04_pt2_solutions.R
 │   │   ├── 04_solutions.R
-│   │   └── 04_pt2_solutions.R
+│   │   └── 05_HSF_solution.R
 │   ├── fun
-│   │   └── bcrw.R
+│   │   ├── bcrw.R
+│   │   └── reclass_landuse.R
 │   ├── lesson_02.R
 │   ├── lesson_02pt2.R
 │   ├── lesson_03.R
 │   ├── lesson_03pt2.R
 │   ├── lesson_04.R
-│   └── lesson_04pt2.R
+│   ├── lesson_04pt2.R
+│   ├── lesson_05.R
+│   └── lesson_05pt2.R
 ├── data
 │   ├── lesson01
 │   │   └── datasetname.csv
@@ -38,10 +47,14 @@
 │   ├── lesson03
 │   │   ├── florida_detections.rda
 │   │   └── florida_stack.tif
-│   └── lesson04
-│       ├── fawn_data.rda
-│       ├── texas_move.rda
-│       └── texas_stack.tif
+│   ├── lesson04
+│   │   ├── fawn_data.rda
+│   │   ├── texas_move.rda
+│   │   └── texas_stack.tif
+│   └── lesson05
+│       ├── habitat.tif
+│       ├── sim_gps_hsf.csv
+│       └── sim_gps_ssf.csv
 ├── index.html
 ├── output
 │   ├── CA_protected_areas_clipped.geojson
@@ -57,5 +70,15 @@
 │   ├── raster_stack.tif
 │   ├── slope.tif
 │   ├── species_counts_by_month.jpg
+│   ├── species_detections.rda
 │   └── top_predator_sites.jpg
-└── repo_tree.txt
+├── repo_tree.txt
+└── rosm.cache
+    └── osm
+        ├── 10_280_434.png
+        ├── 10_281_434.png
+        ├── 11_560_869.png
+        ├── 11_561_869.png
+        ├── 11_562_869.png
+        ├── 11_563_869.png
+        └── 5_8_13.png
