@@ -3,7 +3,8 @@
 # ---- DAY 2: BASIC SPATIAL OPERATIONS IN R ----
 rm(list = ls()) # clear out any existing data taking up room in your working environment
 
-#install.packages(c("terra", "mapview", "dplyr", "sf", "ggplot2", "tidyterra")) # install these packages if you don't already have them
+#install.packages(c("mapview", "dplyr", "sf", "ggplot2", "tidyterra")) # install these packages if you don't already 
+# have them
 library(terra)
 library(mapview)
 library(ggplot2)
