@@ -1,13 +1,13 @@
 # Navigating-the-Wild-in-R-Course
 
-Materials and lesson plans for course in data processing, wrangling, and visualization for wildlife ecologists, taught by Dr. K Whitney Hansen and Dr. Johannes DeGroeve. 
+Materials and lesson plans for course in data processing, wrangling, and visualization for wildlife ecologists, taught by Dr. K Whitney Hansen and Dr. Johannes De Groeve. 
 Hosted by Dr. Emily Bennitt at University of Botswana's Okavango Research Institute
 
 Lesson 01 can be found [here](https://rprogramming-7718dc.gitlab.io/modules/data_management/data_management.html). 
 
 Part of the material for Lesson 01 has been adapted from Dr. Simona Piccardi's data organizational workshop materials (https://github.com/picardis).
 
-Lessons 04 and 05 were adapted from Dr. Brian Smith's movement data workshop materials (https://github.com/bsmity13).
+Lessons 04 part 2 and 05 were adapted from Dr. Brian Smith's movement data workshop materials (https://github.com/bsmity13).
 
 
 * www: [Navigating-the-Wild-in-R](https://WhitneyH1317.github.io/Navigating-the-Wild-in-R-Course/) 
@@ -32,7 +32,6 @@ The repository contains the following files and directories:
 │   ├── lesson_02.R
 │   ├── lesson_02pt2.R
 │   ├── lesson_03.R
-│   ├── lesson_03pt2.R
 │   ├── lesson_04.R
 │   ├── lesson_04pt2.R
 │   ├── lesson_05.R
@@ -100,10 +99,10 @@ lessons are stored in the code-directory.
 |:--------------------|:------------|
 | **[bcrw.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/fun/bcrw.R)** | function for Lesson 04 |
 | **[reclass_landuse.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/fun/reclass_landuse.R)** | function for Lesson 05 |
+| **[lesson_01.html](https://rprogramming-7718dc.gitlab.io/modules/data_management/data_management.html)** | Lesson link: data organization and introduction to Rprojects, GitHub, and more- hosted externally on Johannes De Groeve's gitlab website | 
 | **[lesson_02.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_02.R)** | Lesson file: basic spatial operations (basic spatial data types, vector operations |
 | **[lesson_02pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_02pt2.R)** | Lesson file: basic spatial operations part 2 (sampling points, raster wrangling) |
 | **[lesson_03.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_03.R)** | Lesson file: using tidyverse and wrangling detection data |
-| **[lesson_03pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_03pt2.R)** | Lesson file: investigating species activity patterns |
 | **[lesson_04.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_04.R)** | Lesson file: processing movement data |
 | **[lesson_04pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_04pt2.R)** | Lesson file: understanding and plotting homeranges |
 | **[lesson_05.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_05.R)** | Lesson file: testing habitat selection functions using simulated data |
