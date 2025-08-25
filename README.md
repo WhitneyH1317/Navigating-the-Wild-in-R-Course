@@ -32,7 +32,6 @@ The repository contains the following files and directories:
 │   ├── lesson_02.R
 │   ├── lesson_02pt2.R
 │   ├── lesson_03.R
-│   ├── lesson_03pt2.R
 │   ├── lesson_04.R
 │   ├── lesson_04pt2.R
 │   ├── lesson_05.R
@@ -104,7 +103,6 @@ lessons are stored in the code-directory.
 | **[lesson_02.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_02.R)** | Lesson file: basic spatial operations (basic spatial data types, vector operations |
 | **[lesson_02pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_02pt2.R)** | Lesson file: basic spatial operations part 2 (sampling points, raster wrangling) |
 | **[lesson_03.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_03.R)** | Lesson file: using tidyverse and wrangling detection data |
-| **[lesson_03pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_03pt2.R)** | Lesson file: investigating species activity patterns |
 | **[lesson_04.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_04.R)** | Lesson file: processing movement data |
 | **[lesson_04pt2.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_04pt2.R)** | Lesson file: understanding and plotting homeranges |
 | **[lesson_05.R](https://github.com/WhitneyH1317/Navigating-the-Wild-in-R-Course/blob/main/code/lesson_05.R)** | Lesson file: testing habitat selection functions using simulated data |
