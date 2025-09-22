@@ -123,7 +123,7 @@ head(read.csv("output/randompoints_bigbasin.csv"))
 
 # plot the result
 
-# add county name and a sequential id
+# add county name and a sequential id (don't worry about the park name!!)
 
 # save the result as a csv
 

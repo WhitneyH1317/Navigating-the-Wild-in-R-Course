@@ -225,7 +225,7 @@ steps_mort<- steps_info %>%
 steps_mort # if you investigate it closely, it looks like each row is duplicated twice...
         # how can we fix that?
 
-# there are a couple ways:
+# there are a couple ways we could try this:
 # 1) filter for the year
 steps_mort_filt<- steps_mort %>%
   filter(year(t1_) == FawnYear)
@@ -295,15 +295,13 @@ steps %>%
 
 
 
-
-
 ########## MOVEBANK ############
 require(units)
 require(ggplot2)
 require(move2)
 require(rnaturalearth)
 
-movebank_store_credentials("whitneyhansen17") # Replace with your username
+movebank_store_credentials("xxxxx") # Replace with your username
 lion_studies<- movebank_download_study_info(x="African Lion") # let's look for any data on lions...
 
 # looking for lion studies out of the Kalahari... 
