@@ -97,8 +97,8 @@ head(test_august)                # and how we have a new column ?
 # for instance...
 
 raw_cam_data$keywords[1:10] # these two rows have a bunch of text in them
-str_detect(raw_cam_data$keywords[1:10], "deer")
-grepl("deer", raw_cam_data$keywords[1:10]) 
+str_detect(raw_cam_data$keywords[1:10], "bobcat")
+grepl("bobcat", raw_cam_data$keywords[1:10]) 
     # these function are saying, "does row 1-10 of raw_cam_data's keywords column 
       # contain the character string 'x' ?" It's either true or false.
 
